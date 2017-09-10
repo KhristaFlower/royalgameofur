@@ -14,96 +14,124 @@
 </head>
 <body>
 
-    <div>
-        <div>The Royal Game Of Ur</div>
+    <div class="header">
+        <h1>The Royal Game Of Ur</h1>
+    </div>
+
+    <div class="player-settings">
+        <label>
+            Your name
+            <input type="text" id="playerName">
+            <button id="updatePlayerName">Update</button>
+        </label>
+    </div>
+
+    <!--<div class="pre-game-dice-box hidden">-->
+        <!--<div class="dice-box">-->
+            <!--<div class="dice"></div>-->
+            <!--<div class="dice"></div>-->
+            <!--<div class="dice"></div>-->
+            <!--<div class="dice"></div>-->
+        <!--</div>-->
+    <!--</div>-->
+
+    <div class="play-area hidden">
         <div>
-            <label>
-                Your name
-                <input type="text" id="playerName">
-                <button id="updatePlayerName">Update</button>
-            </label>
+            <div id="whoseTurn">Challenge a player below.</div>
+            <div id="currentRoll">Start a game to roll the dice.</div>
+            <div id="playerTokensWaiting">?</div>
+            <div id="enemyTokensWaiting">?</div>
         </div>
-        <div id="whoseTurn">Challenge a player below.</div>
-        <div id="currentRoll">Start a game to roll the dice.</div>
-        <div id="playerTokensWaiting">?</div>
-        <div id="enemyTokensWaiting">?</div>
+
+        <div class="game" id="game">
+
+            <div class="input">
+                <div class="row">
+                    <div class="cell" data-lane="enemy" data-track="4"></div>
+                    <div class="cell" data-lane="enemy" data-track="3"></div>
+                    <div class="cell" data-lane="enemy" data-track="2"></div>
+                    <div class="cell" data-lane="enemy" data-track="1"></div>
+                    <div class="cell" data-lane="enemy" data-track="0"></div>
+                    <div class="cell" data-lane="enemy" data-track="15"></div>
+                    <div class="cell" data-lane="enemy" data-track="14"></div>
+                    <div class="cell" data-lane="enemy" data-track="13"></div>
+                </div>
+                <div class="row">
+                    <div class="cell" data-lane="middle" data-track="5"></div>
+                    <div class="cell" data-lane="middle" data-track="6"></div>
+                    <div class="cell" data-lane="middle" data-track="7"></div>
+                    <div class="cell" data-lane="middle" data-track="8"></div>
+                    <div class="cell" data-lane="middle" data-track="9"></div>
+                    <div class="cell" data-lane="middle" data-track="10"></div>
+                    <div class="cell" data-lane="middle" data-track="11"></div>
+                    <div class="cell" data-lane="middle" data-track="12"></div>
+                </div>
+                <div class="row">
+                    <div class="cell" data-lane="player" data-track="4"></div>
+                    <div class="cell" data-lane="player" data-track="3"></div>
+                    <div class="cell" data-lane="player" data-track="2"></div>
+                    <div class="cell" data-lane="player" data-track="1"></div>
+                    <div class="cell" data-lane="player" data-track="0"></div>
+                    <div class="cell" data-lane="player" data-track="15"></div>
+                    <div class="cell" data-lane="player" data-track="14"></div>
+                    <div class="cell" data-lane="player" data-track="13"></div>
+                </div>
+            </div>
+
+            <div class="board">
+
+                <div class="row enemy">
+                    <div data-lane="enemy" data-track="4" class="cell another nb-r nb-b"></div>
+                    <div data-lane="enemy" data-track="3" class="cell nb-l nb-r"></div>
+                    <div data-lane="enemy" data-track="2" class="cell nb-l nb-r"></div>
+                    <div data-lane="enemy" data-track="1" class="cell nb-l nb-r"></div>
+                    <div data-lane="enemy" data-track="0" class="cell nb-l empty"></div>
+                    <div data-lane="enemy" data-track="15" class="cell nb-r empty"></div>
+                    <div data-lane="enemy" data-track="14" class="cell nb-l nb-r another"></div>
+                    <div data-lane="enemy" data-track="13" class="cell nb-l nb-b"></div>
+                </div>
+
+                <div class="row middle">
+                    <div data-lane="middle" data-track="5" class="cell nb-t nb-r nb-b"></div>
+                    <div data-lane="middle" data-track="6" class="cell nb-l nb-r"></div>
+                    <div data-lane="middle" data-track="7" class="cell nb-l nb-r"></div>
+                    <div data-lane="middle" data-track="8" class="cell nb-l nb-r another safe"></div>
+                    <div data-lane="middle" data-track="9" class="cell nb-l nb-r"></div>
+                    <div data-lane="middle" data-track="10" class="cell nb-l nb-r"></div>
+                    <div data-lane="middle" data-track="11" class="cell nb-l nb-r"></div>
+                    <div data-lane="middle" data-track="12" class="cell nb-l nb-t nb-b"></div>
+                </div>
+
+                <div class="row player">
+                    <div data-lane="player" data-track="4" class="cell nb-t nb-r another"></div>
+                    <div data-lane="player" data-track="3" class="cell nb-l nb-r"></div>
+                    <div data-lane="player" data-track="2" class="cell nb-l nb-r"></div>
+                    <div data-lane="player" data-track="1" class="cell nb-l nb-r"></div>
+                    <div data-lane="player" data-track="0" class="cell nb-l empty"></div>
+                    <div data-lane="player" data-track="15" class="cell nb-r empty"></div>
+                    <div data-lane="player" data-track="14" class="cell nb-l nb-r another"></div>
+                    <div data-lane="player" data-track="13" class="cell nb-t nb-l"></div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="dice-box">
+            <!--<div class="dice"></div>-->
+            <!--<div class="dice"></div>-->
+            <!--<div class="dice"></div>-->
+            <!--<div class="dice"></div>-->
+        </div>
+        <div class="clear-fix"></div>
     </div>
 
-    <div class="game" id="game">
+    <div class="message-area"></div>
 
-        <div class="input">
-            <div class="row">
-                <div class="cell" data-lane="enemy" data-track="4"></div>
-                <div class="cell" data-lane="enemy" data-track="3"></div>
-                <div class="cell" data-lane="enemy" data-track="2"></div>
-                <div class="cell" data-lane="enemy" data-track="1"></div>
-                <div class="cell" data-lane="enemy" data-track="0"></div>
-                <div class="cell" data-lane="enemy" data-track="15"></div>
-                <div class="cell" data-lane="enemy" data-track="14"></div>
-                <div class="cell" data-lane="enemy" data-track="13"></div>
-            </div>
-            <div class="row">
-                <div class="cell" data-lane="middle" data-track="5"></div>
-                <div class="cell" data-lane="middle" data-track="6"></div>
-                <div class="cell" data-lane="middle" data-track="7"></div>
-                <div class="cell" data-lane="middle" data-track="8"></div>
-                <div class="cell" data-lane="middle" data-track="9"></div>
-                <div class="cell" data-lane="middle" data-track="10"></div>
-                <div class="cell" data-lane="middle" data-track="11"></div>
-                <div class="cell" data-lane="middle" data-track="12"></div>
-            </div>
-            <div class="row">
-                <div class="cell" data-lane="player" data-track="4"></div>
-                <div class="cell" data-lane="player" data-track="3"></div>
-                <div class="cell" data-lane="player" data-track="2"></div>
-                <div class="cell" data-lane="player" data-track="1"></div>
-                <div class="cell" data-lane="player" data-track="0"></div>
-                <div class="cell" data-lane="player" data-track="15"></div>
-                <div class="cell" data-lane="player" data-track="14"></div>
-                <div class="cell" data-lane="player" data-track="13"></div>
-            </div>
-        </div>
-
-        <div class="board">
-
-            <div class="row enemy">
-                <div data-lane="enemy" data-track="4" class="cell another nb-r nb-b"></div>
-                <div data-lane="enemy" data-track="3" class="cell nb-l nb-r"></div>
-                <div data-lane="enemy" data-track="2" class="cell nb-l nb-r"></div>
-                <div data-lane="enemy" data-track="1" class="cell nb-l nb-r"></div>
-                <div data-lane="enemy" data-track="0" class="cell nb-l empty"></div>
-                <div data-lane="enemy" data-track="15" class="cell nb-r empty"></div>
-                <div data-lane="enemy" data-track="14" class="cell nb-l nb-r another"></div>
-                <div data-lane="enemy" data-track="13" class="cell nb-l nb-b"></div>
-            </div>
-
-            <div class="row middle">
-                <div data-lane="middle" data-track="5" class="cell nb-t nb-r nb-b"></div>
-                <div data-lane="middle" data-track="6" class="cell nb-l nb-r"></div>
-                <div data-lane="middle" data-track="7" class="cell nb-l nb-r"></div>
-                <div data-lane="middle" data-track="8" class="cell nb-l nb-r another safe"></div>
-                <div data-lane="middle" data-track="9" class="cell nb-l nb-r"></div>
-                <div data-lane="middle" data-track="10" class="cell nb-l nb-r"></div>
-                <div data-lane="middle" data-track="11" class="cell nb-l nb-r"></div>
-                <div data-lane="middle" data-track="12" class="cell nb-l nb-t nb-b"></div>
-            </div>
-
-            <div class="row player">
-                <div data-lane="player" data-track="4" class="cell nb-t nb-r another"></div>
-                <div data-lane="player" data-track="3" class="cell nb-l nb-r"></div>
-                <div data-lane="player" data-track="2" class="cell nb-l nb-r"></div>
-                <div data-lane="player" data-track="1" class="cell nb-l nb-r"></div>
-                <div data-lane="player" data-track="0" class="cell nb-l empty"></div>
-                <div data-lane="player" data-track="15" class="cell nb-r empty"></div>
-                <div data-lane="player" data-track="14" class="cell nb-l nb-r another"></div>
-                <div data-lane="player" data-track="13" class="cell nb-t nb-l"></div>
-            </div>
-
-        </div>
-
+    <div class="challenge-area">
+        <h2>Players</h2>
+        <div id="connected-players-list"></div>
     </div>
-
-    <div id="connected-players-list"></div>
 
 </body>
 </html>

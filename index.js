@@ -96,6 +96,53 @@ io.on('connection', function (socket) {
         });
     });
 
+    socket.on('pre-game-dice-roll', function (gameId) {
+
+        var currentGame = gamesInProgress[gameId];
+
+        var result = currentGame.rollDice();
+
+        currentPlayer.getPlayerById(socket.id).preGameRoll = result;
+
+        socket.emit('pre-game-dice-roll-result', result);
+
+        if (currentGame.player1.preGameRoll && currentGame.player2.preGameRoll) {
+
+        }
+
+    });
+
+    socket.on('roll', function (gameId) {
+
+        var currentGame = gamesInProgress[gameId];
+
+        if (currentGame.currentPlayer !== socket.id) {
+            // Not this players turn to roll yet.
+            return;
+        }
+
+        if (currentGame.currentRoll !== null) {
+            // This player rolled already.
+            return;
+        }
+
+        currentGame.currentRoll = currentGame.rollDice();
+
+        currentGame.messages.push(socket.playerName + ' rolled ' + currentGame.currentRoll);
+        console.log(socket.playerName + ' rolled the dice and got ' + currentGame.currentRoll);
+
+        // If the player rolled a zero then skip their turn, its back to the opponent to roll.
+        if (currentGame.currentRoll === 0) {
+            console.log(socket.playerName + ' misses a turn!');
+            currentGame.messages.push(socket.playerName + ' misses a turn!');
+            currentGame.currentRoll = null;
+            currentGame.currentPlayer = currentGame.getEnemyPlayer().pid;
+        }
+
+        player(currentGame.player1.pid).emit('game-update', currentGame);
+        player(currentGame.player2.pid).emit('game-update', currentGame);
+    });
+
     socket.on('game-move', function (details) {
         var gameState = gamesInProgress[details.gameId];
 
@@ -106,52 +153,68 @@ io.on('connection', function (socket) {
         var currentPlayer = gameState.getCurrentPlayer();
         var currentEnemy = gameState.getEnemyPlayer();
 
-        if (gameState.isValidMove(details.track, details.lane)) {
-            var destination = parseInt(details.track) + parseInt(gameState.currentRoll);
+        if (!gameState.isValidMove(details.track, details.lane)) {
+            // Can't make this move.
+            return;
+        }
 
-            // Make the move.
-            gameState.track[destination] |= currentPlayer.number;
-            gameState.track[details.track] ^= currentPlayer.number;
+        var destination = parseInt(details.track) + parseInt(gameState.currentRoll);
 
-            // If we land on an enemy in the middle lane then they are knocked out.
-            if (destination >= 5 && destination <= 12) {
+        // Make the move.
+        gameState.track[destination] |= currentPlayer.number;
+        gameState.track[details.track] ^= currentPlayer.number;
 
-                // If the cell we just landed on has an enemy inside of it...
-                if ((gameState.track[destination] & currentEnemy.number) === currentEnemy.number) {
+        // Did we reach the end?
+        if (destination === 15) {
+            // The player has got a token to the safe zone.
+            currentPlayer.tokensDone += 1;
+        }
 
-                    // Remove them.
-                    gameState.track[destination] ^= currentEnemy.number;
+        // If we land on an enemy in the middle lane then they are knocked out.
+        if (destination >= 5 && destination <= 12) {
 
-                    // Add the token back to their pile.
-                    currentEnemy.tokensWaiting += 1;
-                }
+            // If the cell we just landed on has an enemy inside of it...
+            if ((gameState.track[destination] & currentEnemy.number) === currentEnemy.number) {
+
+                // Remove them.
+                gameState.track[destination] ^= currentEnemy.number;
+
+                // Add the token back to their pile.
+                currentEnemy.tokensWaiting += 1;
             }
+        }
 
-            // If we added a token to play then the token count decreases.
-            if (details.track === 0) {
-                currentPlayer.tokensWaiting -= 1;
-            }
+        // If we added a token to play then the token count decreases.
+        if (details.track === 0) {
+            currentPlayer.tokensWaiting -= 1;
+        }
 
-            // Increment the turn counter.
-            gameState.turn += 1;
+        // Increment the turn counter.
+        gameState.turn += 1;
 
-            do {
-                // Switch player (handle that we might have just rolled a zero).
-                gameState.currentPlayer = (gameState.currentPlayer === currentPlayer.pid) ? currentEnemy.pid : currentPlayer.pid;
+        // If we landed on a special square then we get another go.
+        if ([4, 8, 14].indexOf(destination) >= 0) {
+            console.log(socket.playerName + ' landed on a special square - get another go');
+            gameState.messages.push(socket.playerName + ' landed on a special square and gets another go');
+        } else {
+            // Switch player.
+            gameState.currentPlayer = (gameState.currentPlayer === currentPlayer.pid) ? currentEnemy.pid : currentPlayer.pid;
+        }
 
-                // Roll dice.
-                gameState.currentRoll = gameState.rollDice();
+        // Reset the dice.
+        gameState.currentRoll = null;
 
-                console.log('new player', currentPlayer.pid, 'rolled', gameState.currentRoll);
-
-            } while(gameState.currentRoll === 0);
-
+        // Check to see if a player has won yet.
+        if (currentPlayer.tokensDone === 7 || currentEnemy.tokensDone === 7) {
+            // Game is over.
+            currentGameState.state = 2;
+            player(gameState.player1.pid).emit('game-done', gameState);
+            player(gameState.player2.pid).emit('game-done', gameState);
+        } else {
+            // Game is still going...
             // Send a game update.
             player(gameState.player1.pid).emit('game-update', gameState);
             player(gameState.player2.pid).emit('game-update', gameState);
-        } else {
-            // Don't make the move.
-            // TODO: Alert to the client that the move was bad.
         }
     });
 
@@ -172,13 +235,30 @@ function beginGame(socket1, socket2) {
 
     game.id = gameId;
     game.turn += 1;
-    game.currentPlayer = (getRandomBoolean() ? socket1.id : socket2.id);
-
-    do {
-        game.currentRoll = game.rollDice();
-    } while (game.currentRoll === 0);
 
     gamesInProgress[gameId] = game;
+
+    do {
+        var player1Roll = game.rollDice();
+        var player2Roll = game.rollDice();
+    } while (player1Roll === player2Roll);
+
+    game.player1.preGameRoll = player1Roll;
+    game.player2.preGameRoll = player2Roll;
+
+
+    game.messages.push(socket1.playerName + ' rolled a ' + player1Roll);
+    game.messages.push(socket2.playerName + ' rolled a ' + player2Roll);
+
+    if (player1Roll > player2Roll) {
+        game.currentPlayer = game.player1.pid;
+    } else {
+        game.currentPlayer = game.player2.pid;
+    }
+
+    game.messages.push(player(game.currentPlayer).playerName + ' goes first!');
+
+    game.state = 1;
 
     socket1.emit('game-update', game);
     socket2.emit('game-update', game);

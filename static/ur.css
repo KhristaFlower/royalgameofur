@@ -1,3 +1,20 @@
+body {
+  font-family: sans-serif; }
+
+h1 {
+  font-size: 3em; }
+
+h2 {
+  font-size: 2.5em; }
+
+.hidden {
+  display: none !important; }
+
+.clear-fix {
+  clear: both;
+  height: 0;
+  width: auto; }
+
 .board, .input {
   width: 400px;
   height: 150px;
@@ -21,7 +38,8 @@
   .input .cell {
     border: 2px solid transparent; }
     .input .cell.valid {
-      box-shadow: inset 0 0 10px 5px rgba(255, 255, 0, 0.5); }
+      box-shadow: inset 0 0 10px 5px rgba(255, 255, 0, 0.5);
+      cursor: pointer; }
 
 .board {
   border: 2px solid #666666; }
@@ -68,5 +86,32 @@
     background: blue; }
   .counter.red {
     background: red; }
+
+.game {
+  float: left; }
+
+.dice-box {
+  width: 150px;
+  height: 150px;
+  background: rgba(0, 0, 0, 0.2);
+  float: left;
+  margin-left: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center; }
+
+.dice {
+  width: 40%;
+  height: 40%;
+  margin: 5%;
+  float: left;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.2); }
+
+.dice.move {
+  background: white; }
+
+.dice.stay {
+  background: black; }
 
 /*# sourceMappingURL=ur.css.map */

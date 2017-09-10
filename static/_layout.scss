@@ -1,0 +1,23 @@
+body {
+  font-family: sans-serif;
+}
+h1 {
+  font-size: 3em;
+}
+h2 {
+  font-size: 2.5em;
+}
+
+.header {
+
+}
+
+
+.hidden {
+  display: none !important;
+}
+.clear-fix {
+  clear: both;
+  height: 0;
+  width: auto;
+}

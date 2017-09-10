@@ -5,6 +5,8 @@ var Game = function (pid1, pid2) {
     this.currentRoll = null;
     this.id = null;
     this.turn = 0;
+    this.messages = [];
+    this.state = 0;
     this.rollDice = function () {
         // The number of movement points are decided by 4 coin flips.
         var dieValue = 0;
@@ -179,6 +181,7 @@ var Game = function (pid1, pid2) {
 var Player = function (pid, playerNumber) {
     this.number = playerNumber;
     this.pid = pid;
+    this.preGameRoll = null;
     this.tokensWaiting = 7;
     this.tokensDone = 0;
 };

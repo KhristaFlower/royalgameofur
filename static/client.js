@@ -51,12 +51,30 @@ socket.on('challenge-rejected', function (details) {
     console.log(details.playerName + ' has rejected your challenge!');
 });
 
+socket.on('pre-game', function (gameId) {
+    // The player must roll their dice to see who goes first.
+    console.log('Roll your dice to see who goes first.');
+    document
+        .querySelector('.pre-game-dice-box')
+        .addEventListener('click', function () {
+            socket.emit('pre-game-dice-roll', gameId);
+        });
+});
+
+socket.on('pre-game-dice-roll-result', function (number) {
+
+});
+
 socket.on('game-update', function (game) {
+
+    document.querySelector('.play-area').classList.remove('hidden');
+
     console.log('game-update', game);
     currentGameState = new Game();
     currentGameState.id = game.id;
     currentGameState.turn = game.turn;
     currentGameState.track = game.track;
+    currentGameState.state = game.state;
     currentGameState.player1 = game.player1;
     currentGameState.player2 = game.player2;
     currentGameState.currentRoll = game.currentRoll;
@@ -64,10 +82,18 @@ socket.on('game-update', function (game) {
 
     if (socket.id === currentGameState.currentPlayer) {
         document.getElementById('whoseTurn').innerText = 'Your turn! (' + currentGameState.turn + ')';
-        document.getElementById('currentRoll').innerText = 'You rolled a ' + currentGameState.currentRoll + '!';
+        if (currentGameState.currentRoll !== null) {
+            document.getElementById('currentRoll').innerText = 'You rolled a ' + currentGameState.currentRoll + '!';
+        } else {
+            document.getElementById('currentRoll').innerText = 'Roll the dice!';
+        }
     } else {
         document.getElementById('whoseTurn').innerText = 'Opponents turn. (' + currentGameState.turn + ')';
-        document.getElementById('currentRoll').innerText = 'Your opponent rolled a ' + currentGameState.currentRoll;
+        if (currentGameState.currentRoll !== null) {
+            document.getElementById('currentRoll').innerText = 'Your opponent rolled a ' + currentGameState.currentRoll;
+        } else {
+            document.getElementById('currentRoll').innerText = 'Waiting for your opponent to roll.';
+        }
     }
 
     var player = currentGameState.getPlayerById(socket.id);
@@ -82,17 +108,21 @@ socket.on('game-update', function (game) {
         validCells[vc].classList.remove('valid');
     }
 
-    // Mark any of the cells that are valid moves.
-    if (socket.id === currentGameState.currentPlayer) {
-        console.log('We are the current player');
-        // Show the valid moves that the player can make.
-        var validMoves = currentGameState.getValidMoves();
+    // Don't show any moves until the dice roll is known.
+    if (currentGameState.currentRoll !== null) {
 
-        for (var i = 0; i <= 14; i++) {
-            var lane = (i <= 4 || i >= 13) ? 'player' : 'middle';
-            var cell = document.querySelector('.cell[data-lane="' + lane + '"][data-track="' + i + '"]');
-            if (validMoves[i] === true) {
-                cell.classList.add('valid');
+        // Mark any of the cells that are valid moves.
+        if (socket.id === currentGameState.currentPlayer) {
+            console.log('We are the current player');
+            // Show the valid moves that the player can make.
+            var validMoves = currentGameState.getValidMoves();
+
+            for (var i = 0; i <= 14; i++) {
+                var lane = (i <= 4 || i >= 13) ? 'player' : 'middle';
+                var cell = document.querySelector('.cell[data-lane="' + lane + '"][data-track="' + i + '"]');
+                if (validMoves[i] === true) {
+                    cell.classList.add('valid');
+                }
             }
         }
     }
@@ -104,7 +134,7 @@ socket.on('game-update', function (game) {
     }
 
     // Add the tokens to the board.
-    for (var t = 1; t < 14 - 2; t++) {
+    for (var t = 1; t <= 14; t++) {
         var trackValue = currentGameState.track[t];
 
         if (trackValue === 0) {
@@ -119,6 +149,44 @@ socket.on('game-update', function (game) {
         if ((trackValue & enemy.number) === enemy.number) {
             getBoardCell(t, 'enemy').classList.add('token-enemy');
         }
+    }
+
+    // Show or hide the dice box depending on whether you can roll or not.
+    var diceBox = document.querySelector('.dice-box');
+
+    console.log(currentGameState.currentPlayer, socket.id);
+    if (currentGameState.currentPlayer === socket.id) {
+        diceBox.classList.remove('hidden');
+        if (currentGameState.currentRoll === null) {
+            diceBox.innerText = 'Roll';
+        } else {
+            diceBox.innerText = currentGameState.currentRoll;
+        }
+    } else {
+        diceBox.classList.add('hidden');
+    }
+
+    // Display the last 10 game messages.
+    var reverseMessages = game.messages.reverse().splice(0, 10);
+    if (game.messages.length > 10) {
+        reverseMessages.push('(+' + (game.messages.length - 10) + ' messages)');
+    }
+
+    var messageArea = document.querySelector('.message-area');
+    messageArea.innerHTML = '';
+
+    for (var m = 0; m < reverseMessages.length; m++) {
+        var messageElement = document.createElement('div');
+        messageElement.innerText = reverseMessages[m];
+        messageArea.appendChild(messageElement);
+    }
+
+    // Hide some UI elements if the game is in progress.
+    if (parseInt(currentGameState.state) === 1) {
+        // Game in progress.
+        document.querySelector('.challenge-area').classList.add('hidden');
+    } else {
+        document.querySelector('.challenge-area').classList.remove('hidden');
     }
 });
 
@@ -139,14 +207,26 @@ function challengePlayer() {
 
 window.addEventListener('load', function () {
 
+    if (localStorage.getItem('player-name')) {
+        socket.emit('name-change', localStorage.getItem('player-name'));
+    }
+
     document
         .getElementById('updatePlayerName')
         .addEventListener('click', function () {
             var name = document.getElementById('playerName').value;
             if (name) {
                 console.log('Player is changing their name to', name);
+                localStorage.setItem('player-name', name);
                 socket.emit('name-change', name);
             }
+        });
+
+    document
+        .querySelector('.dice-box')
+        .addEventListener('click', function () {
+            console.log('Attempting to roll the dice!');
+            socket.emit('roll', currentGameState.id);
         });
 
     var inputCells = document.querySelectorAll('div#game div.input div.cell');
