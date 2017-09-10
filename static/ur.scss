@@ -1,0 +1,104 @@
+$borderThickness: 2px;
+$borderColor: #666666;
+$borderRouteColor: #CCCCCC;
+
+$cellSize: 50px;
+
+.board, .input {
+  width: $cellSize * 8;
+  height: $cellSize * 3;
+
+  display: flex;
+  flex-direction: column;
+
+  box-sizing: border-box;
+
+  // Row and Cell structuring styles only.
+  .row {
+    display: flex;
+    flex-direction: row;
+    flex: 1;
+
+    .cell {
+      display: flex;
+      flex: 1;
+    }
+  }
+}
+
+.input {
+  position: absolute;
+  z-index: 10;
+}
+
+.input {
+  border: $borderThickness solid transparent;
+
+  .cell {
+    border: $borderThickness solid transparent;
+
+    &.valid {
+      box-shadow:inset 0 0 10px 5px rgba(255,255,0,.5);
+      //background: rgba(255, 255, 0, .5);
+    }
+
+    &:hover {
+      //border: $borderThickness solid yellow;
+    }
+  }
+}
+
+.board {
+  border: $borderThickness solid $borderColor;
+
+  .cell {
+    background: rgba(0, 0, 0, .05);
+    border: $borderThickness solid $borderColor;
+    position: relative;
+
+    &.token-player:after, &.token-enemy:after {
+      content: '';
+      width: 50%;
+      height: 50%;
+      left: 25%;
+      top: 25%;
+      position: absolute;
+      border-radius: 50%;
+    }
+
+    &.token-player:after {
+      background: blue;
+    }
+    &.token-enemy:after {
+      background: red;
+    }
+
+    &.another {
+      background: rgba(0, 255, 0, .2);
+    }
+
+    &.empty {
+      background: transparent;
+    }
+  }
+}
+
+.cell.nb-r { border-right: $borderThickness solid $borderRouteColor; }
+.cell.nb-l { border-left: $borderThickness solid $borderRouteColor; }
+.cell.nb-t { border-top: $borderThickness solid $borderRouteColor; }
+.cell.nb-b { border-bottom: $borderThickness solid $borderRouteColor; }
+
+.counter {
+  width: 50%;
+  height: 50%;
+  margin: 25%;
+  background: grey;
+  border-radius: 100%;
+
+  &.blue {
+    background: blue;
+  }
+  &.red {
+    background: red;
+  }
+}

@@ -1,0 +1,72 @@
+.board, .input {
+  width: 400px;
+  height: 150px;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box; }
+  .board .row, .input .row {
+    display: flex;
+    flex-direction: row;
+    flex: 1; }
+    .board .row .cell, .input .row .cell {
+      display: flex;
+      flex: 1; }
+
+.input {
+  position: absolute;
+  z-index: 10; }
+
+.input {
+  border: 2px solid transparent; }
+  .input .cell {
+    border: 2px solid transparent; }
+    .input .cell.valid {
+      box-shadow: inset 0 0 10px 5px rgba(255, 255, 0, 0.5); }
+
+.board {
+  border: 2px solid #666666; }
+  .board .cell {
+    background: rgba(0, 0, 0, 0.05);
+    border: 2px solid #666666;
+    position: relative; }
+    .board .cell.token-player:after, .board .cell.token-enemy:after {
+      content: '';
+      width: 50%;
+      height: 50%;
+      left: 25%;
+      top: 25%;
+      position: absolute;
+      border-radius: 50%; }
+    .board .cell.token-player:after {
+      background: blue; }
+    .board .cell.token-enemy:after {
+      background: red; }
+    .board .cell.another {
+      background: rgba(0, 255, 0, 0.2); }
+    .board .cell.empty {
+      background: transparent; }
+
+.cell.nb-r {
+  border-right: 2px solid #CCCCCC; }
+
+.cell.nb-l {
+  border-left: 2px solid #CCCCCC; }
+
+.cell.nb-t {
+  border-top: 2px solid #CCCCCC; }
+
+.cell.nb-b {
+  border-bottom: 2px solid #CCCCCC; }
+
+.counter {
+  width: 50%;
+  height: 50%;
+  margin: 25%;
+  background: grey;
+  border-radius: 100%; }
+  .counter.blue {
+    background: blue; }
+  .counter.red {
+    background: red; }
+
+/*# sourceMappingURL=ur.css.map */
