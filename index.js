@@ -160,15 +160,17 @@ io.on('connection', function (socket) {
 
         var destination = parseInt(details.track) + parseInt(gameState.currentRoll);
 
-        // Make the move.
-        gameState.track[destination] |= currentPlayer.number;
-        gameState.track[details.track] ^= currentPlayer.number;
-
-        // Did we reach the end?
+        // If we have reached the end then remove the token and increase the player score otherwise advance the token.
         if (destination === 15) {
-            // The player has got a token to the safe zone.
             currentPlayer.tokensDone += 1;
+            gameState.messages.push(socket.playerName + ' has got a token to the end!');
+        } else {
+            // Add the token to the new destination.
+            gameState.track[destination] |= currentPlayer.number;
         }
+
+        // Remove the token from its last position.
+        gameState.track[details.track] ^= currentPlayer.number;
 
         // If we land on an enemy in the middle lane then they are knocked out.
         if (destination >= 5 && destination <= 12) {
