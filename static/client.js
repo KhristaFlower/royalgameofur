@@ -51,35 +51,23 @@ socket.on('challenge-rejected', function (details) {
     console.log(details.playerName + ' has rejected your challenge!');
 });
 
-socket.on('pre-game', function (gameId) {
-    // The player must roll their dice to see who goes first.
-    console.log('Roll your dice to see who goes first.');
-    document
-        .querySelector('.pre-game-dice-box')
-        .addEventListener('click', function () {
-            socket.emit('pre-game-dice-roll', gameId);
-        });
-});
-
-socket.on('pre-game-dice-roll-result', function (number) {
-
-});
-
 socket.on('game-update', function (game) {
 
     document.querySelector('.play-area').classList.remove('hidden');
 
     console.log('game-update', game);
-    currentGameState = new Game();
-    currentGameState.id = game.id;
-    currentGameState.turn = game.turn;
-    currentGameState.track = game.track;
-    currentGameState.state = game.state;
-    currentGameState.player1 = game.player1;
-    currentGameState.player2 = game.player2;
-    currentGameState.currentRoll = game.currentRoll;
-    currentGameState.currentPlayer = game.currentPlayer;
 
+    // Create a fresh game state.
+    currentGameState = new Game(1, 2);
+
+    // Copy the server state onto the client state.
+    var gameProperties = ['id', 'turn', 'track', 'state', 'player1', 'player2', 'currentRoll', 'currentPlayer'];
+
+    for (var p = 0; p < gameProperties.length; p++) {
+        currentGameState[gameProperties[p]] = game[gameProperties[p]];
+    }
+
+    // Update the GUI elements to reflect the new game state.
     if (socket.id === currentGameState.currentPlayer) {
         document.getElementById('whoseTurn').innerText = 'Your turn! (' + currentGameState.turn + ')';
         if (currentGameState.currentRoll !== null) {

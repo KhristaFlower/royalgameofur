@@ -96,22 +96,6 @@ io.on('connection', function (socket) {
         });
     });
 
-    socket.on('pre-game-dice-roll', function (gameId) {
-
-        var currentGame = gamesInProgress[gameId];
-
-        var result = currentGame.rollDice();
-
-        currentPlayer.getPlayerById(socket.id).preGameRoll = result;
-
-        socket.emit('pre-game-dice-roll-result', result);
-
-        if (currentGame.player1.preGameRoll && currentGame.player2.preGameRoll) {
-
-        }
-
-    });
-
     socket.on('roll', function (gameId) {
 
         var currentGame = gamesInProgress[gameId];
@@ -247,7 +231,6 @@ function beginGame(socket1, socket2) {
 
     game.player1.preGameRoll = player1Roll;
     game.player2.preGameRoll = player2Roll;
-
 
     game.messages.push(socket1.playerName + ' rolled a ' + player1Roll);
     game.messages.push(socket2.playerName + ' rolled a ' + player2Roll);
