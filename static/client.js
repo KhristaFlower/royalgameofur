@@ -3,7 +3,7 @@ var dev = true;
 // Create a placeholder game object.
 var currentGameState = new Game(1, 2);
 
-var socket = io('http://localhost:3000');
+var socket = io(CONFIG.SERVER + ':' + CONFIG.PORT);
 
 socket.on('refresh', function () {
     window.location = window.location;

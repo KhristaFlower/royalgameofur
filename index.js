@@ -4,9 +4,10 @@ var server = require('http').Server(app);
 var io = require('socket.io')(server);
 var fs = require('fs');
 
-// A quick and dirty to get files used on the client here
-// where the server can use them too.
+// A quick and dirty to get files used on the client here where the server can use them too.
+// TODO: Find a better way to do this.
 eval(fs.readFileSync('static/engine.js').toString());
+eval(fs.readFileSync('static/config.js').toString());
 
 // Serve the static content directly.
 app.use(express.static(__dirname + '/static'));
@@ -15,8 +16,8 @@ app.get('/', function (req, res) {
     res.sendFile(__dirname + '/index.html');
 });
 
-server.listen(3000, function () {
-    console.log('Listening on *:3000');
+server.listen(CONFIG.PORT, function () {
+    console.log('Listening on *:' + CONFIG.PORT);
 });
 
 var availablePlayers = {};

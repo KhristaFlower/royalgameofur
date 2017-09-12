@@ -1,2 +1,5 @@
 .idea
 node_modules
+
+# Ignore the configuration file.
+static/config.js
