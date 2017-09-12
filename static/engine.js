@@ -188,6 +188,24 @@ Game.prototype.getValidMoves = function () {
 };
 
 /**
+ * Check to see if there are any valid moves for the current player.
+ *
+ * @returns {boolean} True if the current player has valid moves; false otherwise.
+ */
+Game.prototype.hasValidMoves = function () {
+
+    // Collate all the booleans representing valid moves for each position on the track [true, false, false, true, etc].
+    var validMovesBoolArray = Object.values(this.getValidMoves());
+
+    // Sum all the booleans - a non-zero value indicates a number of valid moves.
+    var numberOfValidMoves = validMovesBoolArray.reduce(function (boolean, sumOfBooleans) {
+        return sumOfBooleans + boolean;
+    }, 0);
+
+    return numberOfValidMoves > 0;
+};
+
+/**
  * Get the current player's player object.
  *
  * @returns {Player} The player object for the current player.
@@ -223,6 +241,40 @@ Game.prototype.getPlayerById = function (pid) {
  */
 Game.prototype.getPlayerByNumber = function (number) {
     return number === 1 ? this.player1 : this.player2;
+};
+
+/**
+ * Switch the current player.
+ */
+Game.prototype.switchCurrentPlayer = function () {
+    this.currentPlayer = this.getEnemyPlayer().pid;
+};
+
+/**
+ * Advance the game to the next turn.
+ */
+Game.prototype.nextTurn = function () {
+
+    // Increment the turn counter.
+    this.turn += 1;
+
+    // Reset the dice.
+    this.currentRoll = null;
+
+};
+
+/**
+ * Add a message to the game log.
+ *
+ * @param {string|number} message The message to add to the game log.
+ */
+Game.prototype.log = function (message) {
+
+    // Add the message to the game.
+    this.messages.push(message);
+
+    // Show the message in the console.
+    console.log(message);
 };
 
 /**

@@ -112,15 +112,18 @@ io.on('connection', function (socket) {
 
         currentGame.currentRoll = currentGame.rollDice();
 
-        currentGame.messages.push(socket.playerName + ' rolled ' + currentGame.currentRoll);
-        console.log(socket.playerName + ' rolled the dice and got ' + currentGame.currentRoll);
+        currentGame.log(socket.playerName + ' rolled ' + currentGame.currentRoll);
 
-        // If the player rolled a zero then skip their turn, its back to the opponent to roll.
         if (currentGame.currentRoll === 0) {
-            console.log(socket.playerName + ' misses a turn!');
-            currentGame.messages.push(socket.playerName + ' misses a turn!');
-            currentGame.currentRoll = null;
-            currentGame.currentPlayer = currentGame.getEnemyPlayer().pid;
+            // If the player rolled a zero then skip their turn, its back to the opponent to roll.
+            currentGame.log(socket.playerName + ' misses a turn!');
+            currentGame.switchCurrentPlayer();
+            currentGame.nextTurn();
+        } else if (!currentGame.hasValidMoves()) {
+            // Check if the player has any valid moves with this roll.
+            currentGame.log(socket.playerName + ' has no valid moves');
+            currentGame.switchCurrentPlayer();
+            currentGame.nextTurn();
         }
 
         player(currentGame.player1.pid).emit('game-update', currentGame);
@@ -146,8 +149,8 @@ io.on('connection', function (socket) {
 
         // If we have reached the end then remove the token and increase the player score otherwise advance the token.
         if (destination === 15) {
+            gameState.log(socket.playerName + ' has got a token to the end!');
             currentPlayer.tokensDone += 1;
-            gameState.messages.push(socket.playerName + ' has got a token to the end!');
         } else {
             // Add the token to the new destination.
             gameState.track[destination] |= currentPlayer.number;
@@ -175,20 +178,16 @@ io.on('connection', function (socket) {
             currentPlayer.tokensWaiting -= 1;
         }
 
-        // Increment the turn counter.
-        gameState.turn += 1;
-
         // If we landed on a special square then we get another go.
         if ([4, 8, 14].indexOf(destination) >= 0) {
-            console.log(socket.playerName + ' landed on a special square - get another go');
-            gameState.messages.push(socket.playerName + ' landed on a special square and gets another go');
+            gameState.log(socket.playerName + ' landed on a special square and gets another go');
         } else {
             // Switch player.
-            gameState.currentPlayer = (gameState.currentPlayer === currentPlayer.pid) ? currentEnemy.pid : currentPlayer.pid;
+            gameState.switchCurrentPlayer();
         }
 
-        // Reset the dice.
-        gameState.currentRoll = null;
+        // Reset the dice and increment the turn counter.
+        gameState.nextTurn();
 
         // Check to see if a player has won yet.
         if (currentPlayer.tokensDone === 7 || currentEnemy.tokensDone === 7) {
@@ -232,8 +231,8 @@ function beginGame(socket1, socket2) {
     game.player1.preGameRoll = player1Roll;
     game.player2.preGameRoll = player2Roll;
 
-    game.messages.push(socket1.playerName + ' rolled a ' + player1Roll);
-    game.messages.push(socket2.playerName + ' rolled a ' + player2Roll);
+    game.log(socket1.playerName + ' rolled a ' + player1Roll);
+    game.log(socket2.playerName + ' rolled a ' + player2Roll);
 
     if (player1Roll > player2Roll) {
         game.currentPlayer = game.player1.pid;
@@ -241,7 +240,7 @@ function beginGame(socket1, socket2) {
         game.currentPlayer = game.player2.pid;
     }
 
-    game.messages.push(player(game.currentPlayer).playerName + ' goes first!');
+    game.log(player(game.currentPlayer).playerName + ' goes first!');
 
     game.state = 1;
 
