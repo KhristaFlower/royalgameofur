@@ -1,5 +1,3 @@
-var dev = true;
-
 // Create a placeholder game object.
 var currentGameState = new Game(1, 2);
 
@@ -34,7 +32,7 @@ socket.on('connected-players', function (players) {
 
 socket.on('incoming-challenge', function (details) {
     console.log('You have been challenged by ' + details.playerName);
-    if (dev || confirm('You are challenged by ' + details.playerName + '. Do you accept?')) {
+    if (CONFIG.DEV || confirm('You are challenged by ' + details.playerName + '. Do you accept?')) {
         console.log('You have accepted the challenge from ' + details.playerName);
         socket.emit('challenge-accept', details.playerId);
     } else {
