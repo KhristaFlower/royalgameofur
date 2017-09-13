@@ -1,22 +1,22 @@
-var express = require('express');
-var app = express();
-var server = require('http').Server(app);
-var io = require('socket.io')(server);
-var fs = require('fs');
+const path = require('path');
+const express = require('express');
+const app = express();
+const server = require('http').Server(app);
+const io = require('socket.io')(server, { serveClient: false });
 
-// A quick and dirty to get files used on the client here where the server can use them too.
-// TODO: Find a better way to do this.
-eval(fs.readFileSync('static/engine.js').toString());
-eval(fs.readFileSync('static/config.js').toString());
+const Game = require('./js/Game');
+const CONFIG = require('./js/config');
+
+console.log(__dirname);
 
 // Serve the static content directly.
-app.use(express.static(__dirname + '/static'));
+app.use(express.static(__dirname));
 
 app.get('/', function (req, res) {
     res.sendFile(__dirname + '/index.html');
 });
 
-server.listen(CONFIG.PORT, function () {
+server.listen(CONFIG.PORT, () => {
     console.log('Listening on *:' + CONFIG.PORT);
 });
 
@@ -132,21 +132,21 @@ io.on('connection', function (socket) {
     });
 
     socket.on('game-move', function (details) {
-        var gameState = gamesInProgress[details.gameId];
+        const gameState = gamesInProgress[details.gameId];
 
         // Convert the track request back to an integer.
         details.track = parseInt(details.track);
 
         // Handy variables used in checks and updates.
-        var currentPlayer = gameState.getCurrentPlayer();
-        var currentEnemy = gameState.getEnemyPlayer();
+        const currentPlayer = gameState.getCurrentPlayer();
+        const currentEnemy = gameState.getEnemyPlayer();
 
         if (!gameState.isValidMove(details.track, details.lane)) {
             // Can't make this move.
             return;
         }
 
-        var destination = parseInt(details.track) + parseInt(gameState.currentRoll);
+        const destination = parseInt(details.track) + parseInt(gameState.currentRoll);
 
         // If we have reached the end then remove the token and increase the player score otherwise advance the token.
         if (destination === 15) {
@@ -193,7 +193,7 @@ io.on('connection', function (socket) {
         // Check to see if a player has won yet.
         if (currentPlayer.tokensDone === 7 || currentEnemy.tokensDone === 7) {
             // Game is over.
-            currentGameState.state = 2;
+            gameState.state = 2;
             player(gameState.player1.pid).emit('game-done', gameState);
             player(gameState.player2.pid).emit('game-done', gameState);
         } else {
@@ -216,17 +216,19 @@ function player(pid) {
 }
 
 function beginGame(socket1, socket2) {
-    var gameId = socket1.id + ':' + socket2.id;
-    var game = new Game(socket1.id, socket2.id);
+    const gameId = socket1.id + ':' + socket2.id;
+    const game = new Game(socket1.id, socket2.id);
 
     game.id = gameId;
     game.turn += 1;
 
     gamesInProgress[gameId] = game;
 
+    let player1Roll, player2Roll;
+
     do {
-        var player1Roll = game.rollDice();
-        var player2Roll = game.rollDice();
+        player1Roll = game.rollDice();
+        player2Roll = game.rollDice();
     } while (player1Roll === player2Roll);
 
     game.player1.preGameRoll = player1Roll;

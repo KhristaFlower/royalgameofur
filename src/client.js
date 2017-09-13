@@ -1,7 +1,13 @@
-// Create a placeholder game object.
-var currentGameState = new Game(1, 2);
+require('./scss/ur.scss');
+const Game = require('./js/Game');
+const CONFIG = require('./js/config');
+const io = require('socket.io-client');
 
-var socket = io(CONFIG.SERVER);
+// Create a placeholder game object.
+let currentGameState = new Game(1, 2);
+
+/** @var {Socket} socket */
+const socket = io(CONFIG.SERVER);
 
 socket.on('refresh', function () {
     window.location = window.location;
@@ -9,10 +15,10 @@ socket.on('refresh', function () {
 
 socket.on('connected-players', function (players) {
     // Render a list of all currently connected players.
-    var playerList = document.getElementById('connected-players-list');
+    const playerList = document.getElementById('connected-players-list');
     playerList.innerHTML = '';
 
-    for (var p in players) {
+    for (const p in players) {
         if (!players.hasOwnProperty(p)) {
             continue;
         }
@@ -22,7 +28,7 @@ socket.on('connected-players', function (players) {
             continue;
         }
 
-        var playerName = document.createElement('button');
+        const playerName = document.createElement('button');
         playerName.addEventListener('click', challengePlayer);
         playerName.setAttribute('data-player-id', p);
         playerName.innerText = players[p];
@@ -59,9 +65,9 @@ socket.on('game-update', function (game) {
     currentGameState = new Game(1, 2);
 
     // Copy the server state onto the client state.
-    var gameProperties = ['id', 'turn', 'track', 'state', 'player1', 'player2', 'currentRoll', 'currentPlayer'];
+    const gameProperties = ['id', 'turn', 'track', 'state', 'player1', 'player2', 'currentRoll', 'currentPlayer'];
 
-    for (var p = 0; p < gameProperties.length; p++) {
+    for (let p = 0; p < gameProperties.length; p++) {
         currentGameState[gameProperties[p]] = game[gameProperties[p]];
     }
 
@@ -82,14 +88,14 @@ socket.on('game-update', function (game) {
         }
     }
 
-    var player = currentGameState.getPlayerById(socket.id);
-    var enemy = currentGameState.getPlayerByNumber(player.number === 1 ? 2 : 1);
+    const player = currentGameState.getPlayerById(socket.id);
+    const enemy = currentGameState.getPlayerByNumber(player.number === 1 ? 2 : 1);
 
     document.getElementById('playerTokensWaiting').innerText = 'Your tokens waiting: ' + player.tokensWaiting;
     document.getElementById('enemyTokensWaiting').innerText = 'Enemy tokens waiting: ' + enemy.tokensWaiting;
 
     // Clear any currently valid cells.
-    var validCells = document.querySelectorAll('.input .cell.valid');
+    const validCells = document.querySelectorAll('.input .cell.valid');
     for (var vc = 0; vc < validCells.length; vc++) {
         validCells[vc].classList.remove('valid');
     }
