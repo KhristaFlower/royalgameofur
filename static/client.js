@@ -1,7 +1,7 @@
 // Create a placeholder game object.
 var currentGameState = new Game(1, 2);
 
-var socket = io(CONFIG.SERVER + ':' + CONFIG.PORT);
+var socket = io(CONFIG.SERVER);
 
 socket.on('refresh', function () {
     window.location = window.location;
