@@ -328,7 +328,15 @@ html {
   overflow-y: scroll; }
 
 .game-container .bottom .chat-list {
-  padding: 0.5em; }
+  flex-grow: 1; }
+  .game-container .bottom .chat-list li {
+    display: flex;
+    flex-direction: column;
+    padding: 0.5em; }
+    .game-container .bottom .chat-list li:nth-child(even) {
+      background: rgba(255, 255, 255, 0.1); }
+    .game-container .bottom .chat-list li .name {
+      color: rgba(255, 255, 255, 0.25); }
 
 .game-container .bottom .event-list li {
   display: flex;
@@ -341,9 +349,6 @@ html {
     margin-right: 1em;
     color: rgba(255, 255, 255, 0.25);
     font-size: .75em; }
-
-.game-container .bottom .chat .chat-list {
-  flex-grow: 1; }
 
 .game-container .bottom .chat .message-box {
   display: flex;

@@ -85,7 +85,8 @@ nodeCleanup(function (exitCode, signal) {
   var applicationData = {
     users: usersCache,
     challenges: challengeCache,
-    games: gamesInProgress
+    games: gamesInProgress,
+    messages: offlineMessageStorage
   };
   var fileContent = JSON.stringify(applicationData, null, 2);
   fs.writeFileSync('./ApplicationData.json', fileContent);
@@ -174,6 +175,9 @@ if (fs.existsSync('./ApplicationData.json')) {
   usersCache = applicationData.users;
   challengeCache = applicationData.challenges;
   sequences.users = applicationData.users.length;
+
+  // Restore offline message storage.
+  offlineMessageStorage = applicationData.messages;
 
   // Hydrate the game data back into objects that have functions.
   var rawGames = applicationData.games;
@@ -397,6 +401,11 @@ io.on('connection', function (socket) {
     socket.on('game-roll', function (gameId) {
       gameRoll(socket, gameId);
     });
+    socket.on('chat-send', function (payload) {
+      var gameId = payload.gameId;
+      var message = payload.message;
+      handleChat(socket, gameId, message);
+    });
 
     // Mark the socket so we can identify the player.
     socket.userId = player.id;
@@ -408,6 +417,7 @@ io.on('connection', function (socket) {
     sendAllPlayersToClient(socket);
     sendAllChallengesToClient(socket);
     sendAllGamesToPlayer(socket);
+    sendAllOfflineMessages(socket);
 
     // Let all the other users know that this user joined.
     socket.to('players').emit('lobby-players-join', {
@@ -426,7 +436,7 @@ io.on('connection', function (socket) {
     if (socket.userId) {
 
       // Remove helper references.
-      delete playerIdsToSocketIds[player.id];
+      delete playerIdsToSocketIds[socket.userId];
       delete socketIdsToPlayerIds[socket.id];
 
       // This player is no longer in the lobby.
@@ -441,6 +451,15 @@ io.on('connection', function (socket) {
 
       // Scrub the ID.
       socket.userId = null;
+
+      // Remove registered functions, they'll be rebound when the client logs back in.
+      socket.off('lobby-challenge-accept', challengeAccepted);
+      socket.off('lobby-challenge-reject', challengeRejected);
+      socket.off('logout', authLogout);
+      socket.removeAllListeners('challenge-create');
+      socket.removeAllListeners('game-select');
+      socket.removeAllListeners('game-roll');
+      socket.removeAllListeners('chat-send');
     }
 
     socket.on('login', authLogin);
@@ -569,6 +588,14 @@ function player(pid) {
     return {
       emit: function emit(event, payload) {
         console.log('emitting', event, 'to offline player', pid);
+
+        if (event === 'chat-add') {
+          // Handle offline message storage.
+          if (!(pid in offlineMessageStorage)) {
+            offlineMessageStorage[pid] = [];
+          }
+          offlineMessageStorage[pid].push(payload);
+        }
       },
       playerName: player.name
     };
@@ -914,6 +941,49 @@ function gameRoll(socket, gameId) {
 
   player(game.player1.pid).emit('game-activity', game);
   player(game.player2.pid).emit('game-activity', game);
+}
+
+function handleChat(socket, gameId, message) {
+  // Check that the game exists.
+  if (!(gameId in gamesInProgress)) {
+    return;
+  }
+
+  console.log('handling chat');
+
+  var game = gamesInProgress[gameId];
+
+  var messagePayload = {
+    gameId: game.id,
+    senderId: game.getPlayerById(socket.userId).pid,
+    senderName: game.getPlayerById(socket.userId).name,
+    message: message
+  };
+
+  // Send the chat message to each player.
+  // Offline message storage is handled in the helper returned
+  // from the player method when the player is offline.
+  player(game.player1.pid).emit('chat-add', messagePayload);
+  player(game.player2.pid).emit('chat-add', messagePayload);
+}
+
+/**
+ * A storage for messages that need to be sent to offline players.
+ */
+var offlineMessageStorage = {};
+
+function sendAllOfflineMessages(socket) {
+  if (!(socket.userId in offlineMessageStorage)) {
+    return;
+  }
+
+  console.log('sending offline chat messages to', socket.userId);
+
+  var messages = offlineMessageStorage[socket.userId];
+
+  socket.emit('chat-update', messages);
+
+  delete offlineMessageStorage[socket.userId];
 }
 
 /***/ }),

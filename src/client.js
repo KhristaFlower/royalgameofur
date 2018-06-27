@@ -84,6 +84,11 @@ const events = {
           // Save the rememberToken for future use.
           localStorage.setItem('remember-token', payload.rememberToken);
         }
+        if (localStorage.getItem('local-chat-' + myPlayerId)) {
+          chatLog = JSON.parse(localStorage.getItem('local-chat-' + myPlayerId));
+          console.log('loaded chatLog', chatLog);
+        }
+        renderChat();
         // We're done with the authentication overlay.
         $('#authentication_overlay').hide();
       },
@@ -93,6 +98,7 @@ const events = {
        */
       failure: function (failureReason) {
         console.log('auth.login.failure', failureReason);
+        messageBox('Authentication Failed', failureReason);
       }
     },
     register: {
@@ -248,6 +254,9 @@ const events = {
       game.hydrate(gameData);
       currentGame = game;
       renderGameBoard();
+
+      // Render the chat for this game.
+      renderChat();
     },
     /**
      * Sent by the server when another player did something to send us an update.
@@ -314,6 +323,40 @@ const events = {
         $('.stats .details .pieces').empty();
       }
     }
+  },
+  chat: {
+    /**
+     * Sent from the server when a chat message needs to be sent to clients.
+     * @param {MessageModel} message The message details.
+     */
+    add: function (message) {
+      console.log('chat.add', message);
+
+      if (!(message.gameId in chatLog)) {
+        chatLog[message.gameId] = [];
+      }
+      chatLog[message.gameId].push(message);
+
+      renderChat();
+    },
+    /**
+     * Sent when the player connects to the server, it is to update any messages
+     * that were accumulated while the player was offline.
+     * @param {MessageModel[]} messages A list of offline messages.
+     */
+    update: function (messages) {
+      console.log('chat.update', messages);
+
+      for (let i = 0; i < messages.length; i++) {
+        const message = messages[i];
+        if (!(message.gameId in chatLog)) {
+          chatLog[message.gameId] = [];
+        }
+        chatLog[message.gameId].push(message);
+      }
+
+      renderChat();
+    }
   }
 };
 
@@ -350,6 +393,10 @@ socket.on('game-set', events.game.set);
 socket.on('game-activity', events.game.activity);
 socket.on('game-remove', events.game.remove);
 
+// Social
+socket.on('chat-add', events.chat.add);
+socket.on('chat-update', events.chat.update);
+
 let $boardTemplate;
 
 $(() => {
@@ -366,6 +413,24 @@ $(() => {
   $('#login_submit').on('click', doLogin);
   $('#register_submit').on('click', doRegister);
 
+  // Chat functionality.
+  $('.chat input').off('keypress').on('keypress', function (e) {
+    if (e.which === 13) {
+      // Submit the message.
+      sendChat();
+    }
+  });
+
+  $('.chat button').off('click').on('click', function () {
+    sendChat();
+  });
+
+  // Restore the chat when we get back.
+  if (localStorage.getItem('local-chat-' + myPlayerId)) {
+    chatLog = JSON.parse(localStorage.getItem('local-chat-' + myPlayerId));
+  }
+
+  // Help text.
   $('.stats .help').on('click', () => {
     const title = 'Game Help';
     let message = `The Royal Game Of Ur is an old board game.<br>
@@ -924,4 +989,76 @@ function loggedOut() {
 
   // Show the authentication box.
   $authenticationOverlay.show();
+
+  // Clear the chat log (it is saved when changes are made, so we don't need to do it here).
+  chatLog = {};
+
+  // Render interfaces that need to be updated after logout.
+  renderChat();
+  renderTitle();
+}
+
+// Local cache of chat made in all the games the player is a part of.
+// Chat will be thrown away once the game is complete.
+// If a player logs off then chat messages will be collected on the
+// server and sent to the client once they log back in.
+let chatLog = {};
+
+/**
+ * A message object.
+ * @type {{gameId: string, senderId: number, senderName: string, message: string}}
+ */
+const MessageModel = {};
+
+function renderChat() {
+  // Nothing to render if we don't have a game open.
+  if (currentGame === null || !(currentGame.id in chatLog)) {
+    // If the chat is open, clear it.
+    $('.chat-list').empty();
+    return;
+  }
+
+  const currentChat = chatLog[currentGame.id];
+
+  // Write the chat to the localStorage so we can pull it back if the player
+  // closes the browser. We don't want to store all that chat history on the server.
+  localStorage.setItem('local-chat-' + myPlayerId, JSON.stringify(chatLog));
+
+  const $newChatList = $('<ul class="chat-list">');
+
+  for (let i = 0; i < currentChat.length; i++) {
+    const $chatItem = $('<li>');
+
+    const $playerName = $('<div class="name">').text(currentChat[i].senderName);
+    const $playerMessage = $('<div class="message">').text(currentChat[i].message);
+
+    $chatItem.append($playerName, $playerMessage);
+
+    $newChatList.append($chatItem);
+  }
+
+  $('.chat-list').replaceWith($newChatList);
+}
+
+function sendChat() {
+
+  if (currentGame === null) {
+    return;
+  }
+
+  const message = $('.chat input').val();
+
+  if (message.trim().length === 0) {
+    return;
+  }
+
+  console.log('sending chat');
+
+  socket.emit('chat-send', {
+    gameId: currentGame.id,
+    message: message
+  });
+
+  // Clear the text box.
+  $('.chat input').val('');
 }

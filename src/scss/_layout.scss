@@ -404,7 +404,22 @@ html {
 }
 
 .game-container .bottom .chat-list {
-  padding: $boxPadding;
+  flex-grow: 1;
+
+  li {
+    display: flex;
+    flex-direction: column;
+
+    padding: $boxPadding;
+
+    &:nth-child(even) {
+      background: $boxBackground;
+    }
+
+    .name {
+      color: $white25;
+    }
+  }
 }
 
 .game-container .bottom .event-list li {
@@ -431,10 +446,6 @@ html {
   //&:nth-child(even) {
   //  background: rgba(255, 255, 255, .025);
   //}
-}
-
-.game-container .bottom .chat .chat-list {
-  flex-grow: 1;
 }
 
 .game-container .bottom .chat .message-box {
