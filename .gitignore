@@ -3,3 +3,6 @@ node_modules
 
 # Ignore the configuration file.
 src/js/config.js
+
+# Ignore the file-based cache system.
+ApplicationData.json
