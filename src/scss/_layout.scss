@@ -1,23 +1,844 @@
-body {
+$boxPadding: .5em;
+$boxBorder: 1px solid rgba(255, 255, 255, .2);
+$boxBackground: rgba(255, 255, 255, .1);
+
+$white75: rgba(255, 255, 255, .74);
+$white50: rgba(255, 255, 255, .5);
+$white25: rgba(255, 255, 255, .25);
+
+body * {
+  box-sizing: border-box;
+  /* This helps us see our flex-box layout. */
+  //background: rgba(255,255,255,.1);
+
+  font-family: Helvetica, sans-serif;
+}
+
+html {
+  height: 100vh;
+  background-image: linear-gradient(to left top, #0e1d2a, #0d232e, #0c2832, #0e2e34, #123336);
   font-family: sans-serif;
-}
-h1 {
-  font-size: 3em;
-}
-h2 {
-  font-size: 2.5em;
+  // Make the UI feel less website-y.
+  // We'll remove these on elements where it makes sense to do so.
+  cursor: default;
+  user-select: none;
 }
 
-.header {
+.app-container {
+  display: flex;
+  flex-direction: row;
 
+  width: 1000px;
+  height: 800px;
+  margin: 0 auto;
+  padding-top: $boxPadding;
 }
 
+.app-container .left {
+  /* Don't let the left menu get too big. */
+  min-width: 200px;
+  max-width: 300px;
 
-.hidden {
-  display: none !important;
+  display: flex;
+  flex-direction: column;
 }
-.clear-fix {
-  clear: both;
-  height: 0;
-  width: auto;
+
+.app-container .left .title {
+  display: flex;
+  flex-grow: 0;
+  justify-content: center;
+
+  color: $white75;
+  text-transform: capitalize;
+  font-weight: bold;
+  text-align: center;
+  padding: .5em;
+  border: $boxBorder;
+  margin-bottom: $boxPadding;
+  background: $boxBackground;
+}
+
+.app-container .left .players-online,
+.app-container .left .my-games {
+  display: flex;
+  flex-grow: 1;
+  flex-direction: column;
+  flex-basis: 0;
+
+  border: $boxBorder;
+  background: $boxBackground;
+  margin-bottom: $boxPadding;
+}
+
+.app-container .left .my-games {
+  margin-bottom: 0;
+}
+
+.app-container .left .players-online .subheading,
+.app-container .left .my-games .subheading {
+  display: flex;
+  flex-grow: 0;
+
+  color: $white75;
+  text-transform: capitalize;
+  font-weight: bold;
+  text-align: center;
+  padding: .5em;
+  font-size: 1em;
+  background: $boxBackground;
+}
+
+.players-online .player-list li {
+  padding: .25em .5em;
+  cursor: pointer;
+
+  color: $white50;
+
+  &:hover {
+    background: rgba(255, 255, 255, .5);
+  }
+}
+
+.players-online .player-list li:first-child {
+  margin-top: 0;
+}
+
+.game-list li.my-game {
+  display: flex;
+  flex-direction: column;
+
+  margin-top: .25em;
+  background: rgba(255, 255, 255, .05);
+  color: $white50;
+  cursor: pointer;
+
+  &:first-child {
+    margin-top: 0;
+  }
+
+  .opponent {
+    padding: $boxPadding;
+  }
+
+  .bottom {
+    display: flex;
+    flex-direction: row;
+
+    padding: 0 $boxPadding $boxPadding $boxPadding;
+    color: $white25;
+
+    .turn {
+      flex-grow: 0;
+    }
+
+    .current-player {
+      flex-grow: 1;
+
+      text-align: right;
+    }
+  }
+
+  &:hover {
+    background: rgba(255, 255, 0, .2);
+  }
+}
+
+.my-games .challenge-list {
+  display: flex;
+  flex-direction: column;
+
+  color: $white50;
+
+  li {
+    background: rgba(255, 255, 255, .05);
+    padding: $boxPadding;
+    margin-bottom: .25em;
+    cursor: pointer;
+
+    &:first-child {
+      margin-top: .25em;
+    }
+
+    &:hover {
+      background: $boxBackground;
+    }
+  }
+}
+
+.app-container .right {
+  display: flex;
+  flex-grow: 1;
+  flex-direction: column;
+
+  margin-left: $boxPadding;
+}
+
+.app-container .right .game-container {
+  display: flex;
+  flex-grow: 1;
+  flex-direction: column;
+}
+
+.game-container .stats {
+  display: flex;
+  flex-grow: 0;
+  flex-direction: row;
+  justify-content: stretch;
+  align-items: stretch;
+
+  margin-bottom: $boxPadding;
+}
+
+.game-container .stats .box {
+  display: flex;
+  flex-grow: 1;
+  flex-direction: column;
+
+  border: $boxBorder;
+  background: $boxBackground;
+  text-align: center;
+  position: relative;
+
+  &:not(:first-child) {
+    margin-left: $boxPadding;
+  }
+
+  .heading {
+    color: $white75;
+    font-weight: bold;
+    font-size: 1em;
+    padding: $boxPadding 0;
+  }
+
+  .content {
+    padding: 0 0 $boxPadding 0;
+    color: $white50;
+  }
+
+  &.turn {
+    width: 80px;
+    flex-grow: 0;
+  }
+
+  &.dice {
+    width: 80px;
+    flex-grow: 0;
+
+    .header, .content {
+      z-index: 3;
+    }
+
+    &.go {
+      cursor: pointer;
+    }
+
+    &.go::before {
+      content: ' ';
+      position: absolute;
+      left: 0;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      animation: pulse 2s ease infinite;
+      z-index: 2;
+      pointer-events: none;
+    }
+  }
+
+  &.help {
+    width: 80px;
+    flex-grow: 0;
+  }
+
+  &.details {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
+    .player, .enemy {
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+      flex-basis: 0;
+
+      .name {
+        //padding: .25em 0;
+        color: $white75;
+        font-weight: bold;
+        margin-bottom: .5em;
+      }
+    }
+
+    .vs {
+      font-size: 2em;
+      font-weight: bold;
+      color: $white25;
+      margin-bottom: .2em;
+    }
+
+    .pieces {
+      display: flex;
+      flex-direction: row;
+      flex-grow: 1;
+      align-items: center;
+      justify-content: center;
+
+      .token {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+
+        background: rgba(32, 32, 32, 1);
+        width: 1em;
+        height: 1em;
+        border-radius: 50%;
+        margin: 0 .1em;
+        position: relative;
+
+        &.done {
+          opacity: 0.3;
+        }
+
+        //&.done::after {
+        //  content: ' ';
+        //  width: 2px;
+        //  height: 120%;
+        //  //border: 1px solid white;
+        //  background: black;
+        //  box-sizing: border-box;
+        //  transform: rotate(45deg);
+        //}
+      }
+    }
+
+    .player .pieces .token {
+      background: rgba(32, 32, 128, 1);
+    }
+
+    .enemy .pieces .token {
+      background: rgba(128, 32, 32, 1);
+    }
+  }
+}
+
+.game-container .game {
+  /*display: flex;*/
+  flex-grow: 0;
+  flex-shrink: 1;
+  flex-direction: row;
+}
+
+.game-container .game .board-ratio-lock {
+  /*
+      The percentage of top padding is based on the width.
+      Using this trick is how we lock the game board to a
+      8:3 aspect ratio. The game board is 8x3 which will
+      ensure that all boxes on the grid are square.
+  */
+  width: 100%;
+  padding-top: 37.5%; /* 8:3 aspect ratio. */
+  /* Needed to force the child element to position correctly. */
+  position: relative;
+}
+
+.game-container .game .board-ratio-lock .board-container {
+  /*
+      The below forces the container to fill the padded region
+      responsible for ensuring the correct aspect ratio.
+  */
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+
+  border: $boxBorder;
+  background: $boxBackground;
+}
+
+.game-container .bottom {
+  display: flex;
+  flex-grow: 1;
+  flex-basis: 0;
+  flex-direction: row;
+
+  margin-top: $boxPadding;
+
+  // Hack for Firefox to solve nested flex-boxes not working
+  // properly with the overflow scroll.
+  min-height: 0;
+}
+
+.game-container .bottom .chat,
+.game-container .bottom .events {
+  display: flex;
+  flex-grow: 1;
+  flex-direction: column;
+  flex-basis: 0;
+
+  border: $boxBorder;
+  background: $boxBackground;
+}
+
+.game-container .bottom .events {
+  margin-left: $boxPadding;
+}
+
+.game-container .bottom .chat .heading,
+.game-container .bottom .events .heading {
+  color: $white75;
+  font-weight: bold;
+  padding: .5em;
+  font-size: 1em;
+  background: $boxBackground;
+}
+
+.game-container .bottom .chat-list,
+.game-container .bottom .event-list {
+  color: $white50;
+  flex-grow: 1;
+
+  overflow-y: scroll;
+}
+
+.game-container .bottom .chat-list {
+  padding: $boxPadding;
+}
+
+.game-container .bottom .event-list li {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  padding: $boxPadding;
+
+  &.even-turn {
+    background: rgba(255, 255, 255, .025);
+  }
+
+  .turn {
+    margin-right: 1em;
+    color: $white25;
+    font-size: .75em;
+  }
+
+  .message {
+
+  }
+
+  //&:nth-child(even) {
+  //  background: rgba(255, 255, 255, .025);
+  //}
+}
+
+.game-container .bottom .chat .chat-list {
+  flex-grow: 1;
+}
+
+.game-container .bottom .chat .message-box {
+  display: flex;
+  flex-direction: row;
+  flex-grow: 0;
+
+  border-top: $boxBorder;
+
+  input {
+    flex-grow: 1;
+    background: rgba(0, 0, 0, .3);
+    border: 0;
+    color: $white50;
+    padding: .25em;
+    font-size: 1em;
+  }
+  button {
+    flex-grow: 0;
+    background: rgba(0, 0, 0, .3);
+    color: $white50;
+    border: 0;
+    border-left: $boxBorder;
+  }
+}
+
+// Utilities and Components
+
+.overlay {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, .5);
+  z-index: 10;
+
+  &.solid {
+    background: rgba(0, 0, 0, 1);
+  }
+}
+
+.start-hidden {
+  display: none;
+}
+
+/* AUTHENTICATION */
+
+.authentication-box {
+  display: flex;
+  flex-grow: 0;
+
+  width: 500px;
+  height: 300px;
+
+  border: $boxBorder;
+  padding: $boxPadding;
+  color: #fff;
+  background: #333;
+
+  input {
+    background: #666;
+    border: 1px solid #999;
+  }
+}
+
+.authentication-box .login-box,
+.authentication-box .register-box {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  flex-basis: 0;
+}
+
+.authentication-box .register-box {
+  margin-left: $boxPadding;
+}
+
+.authentication-box .heading {
+  color: #fff;
+  font-weight: bold;
+  text-align: center;
+  padding: 1em;
+}
+
+.authentication-box .form {
+  padding: $boxPadding;
+}
+
+.authentication-box fieldset {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: stretch;
+
+  margin-bottom: .5em;
+}
+
+.authentication-box fieldset label {
+  font-size: .8em;
+}
+
+.authentication-box fieldset input {
+  width: 100%;
+  border: 0;
+  padding: .5em;
+}
+
+.authentication-box button {
+  width: 100%;
+  padding: 1em;
+}
+
+/* PLAYER MENU */
+
+.overlay .player-menu {
+  display: flex;
+  flex-direction: column;
+
+  width: 300px;
+  //height: 200px;
+
+  background: #333;
+  border: $boxBorder;
+  color: $white75;
+  text-align: center;
+
+  .heading {
+    font-size: 1.5em;
+    font-weight: bold;
+    padding: 1em;
+  }
+
+  li {
+    padding: 1em;
+    cursor: pointer;
+
+    &:hover {
+      background: $boxBackground;
+    }
+  }
+
+  .close {
+    font-size: .8em;
+    color: $white50;
+    padding: 1em;
+    cursor: pointer;
+    &:hover {
+      background: rgba(255, 0, 0, .2);
+    }
+  }
+}
+
+// Message Box
+
+.overlay .container {
+  display: flex;
+  flex-direction: column;
+
+  min-width: 300px;
+  max-width: 600px;
+
+  background: #333;
+  border: $boxBorder;
+  color: $white75;
+
+  .heading {
+    padding: 1em;
+    font-size: 1.2em;
+  }
+
+  p {
+    padding: 0 1em;
+  }
+
+  .controls {
+    display: flex;
+    flex-direction: row-reverse;
+
+    button {
+      margin: .5em;
+      padding: .2em .5em;
+
+      color: $white50;
+      background: $boxBackground;
+      border: $boxBorder;
+      font-size: 1em;
+
+      cursor: pointer;
+
+      &:hover {
+        background: rgba(255, 255, 255, .2);
+      }
+    }
+  }
+}
+
+// Board
+
+@mixin fill-parent {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+}
+
+$boardPadding: .25em;
+
+.board {
+  display: flex;
+  flex-direction: column;
+
+  width: 100%;
+  height: 100%;
+
+  $passableBorder: 2px solid rgba(0, 0, 0, .1);
+
+  .row {
+    display: flex;
+    flex-direction: row;
+    flex-grow: 1;
+    flex-basis: 0;
+
+    .cell {
+      display: flex;
+      flex-grow: 1;
+      flex-basis: 0;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+
+      $primary: 128;
+      $secondary: 0;
+
+      &[data-lane="player"] .special {
+        background: rgba($secondary, $secondary, $primary, .1);
+      }
+      &[data-lane="enemy"] .special {
+        background: rgba($primary, $secondary, $secondary, .1);
+      }
+      &[data-lane="middle"] .special {
+        background: rgba($primary, $secondary, $primary, .1);
+      }
+
+      .special {
+        @include fill-parent;
+        z-index: 4;
+        pointer-events: none;
+        &.protected {}
+      }
+
+      // A pseudo element highlighting valid moves on the board.
+      &.valid::before {
+        @include fill-parent;
+        content: ' ';
+        flex: 1 1 auto;
+        background: rgba(255, 255, 0, .1);
+        z-index: 5;
+        box-shadow: inset 0 0 40px 0 rgba(255, 255, 255, .2);
+        cursor: pointer;
+      }
+
+      // A pseudo element showing the track number on the board.
+      &::after {
+        content: attr(data-track);
+        flex: 1 1 auto;
+        text-align: center;
+        pointer-events: none;
+        color: rgba(0, 0, 0, .04);
+        font-size: 3em;
+        font-weight: bold;
+        z-index: 6;
+      }
+
+      background: $boxBackground;
+      border: 2px solid rgba(255, 255, 255, .3);
+
+      .token {
+        position: absolute;
+        width: 50%;
+        height: 50%;
+        border-radius: 50%;
+        background: rgba(0, 0, 0, 1);
+
+        &.player {
+          background: rgba(32, 32, 128, 1);
+        }
+        &.enemy {
+          background: rgba(128, 32, 32, 1);
+        }
+      }
+
+
+      &[data-track="0"] {
+        background: transparent;
+        //border: 2px solid rgba(0, 255, 0, .3);
+      }
+      &[data-track="15"] {
+        background: transparent;
+        //border: 2px solid rgba(255, 0, 0, .3);
+      }
+
+      $excludeRight: 1 2 3 4 5 6 7 8 9 10 11 14 15;
+      $excludeLeft: 0 1 2 3 6 7 8 9 10 11 12 13 14;
+
+      // Right borders.
+      @each $track in $excludeRight {
+        &[data-track="#{$track}"] {
+          border-right: $passableBorder;
+        }
+      }
+
+      // Left borders.
+      @each $track in $excludeLeft {
+        &[data-track="#{$track}"] {
+          border-left: $passableBorder;
+        }
+      }
+
+      &[data-track="4"][data-lane="player"],
+      &[data-track="13"][data-lane="player"],
+      &[data-track="5"][data-lane="middle"],
+      &[data-track="12"][data-lane="middle"] {
+        border-top: $passableBorder;
+      }
+
+      &[data-track="4"][data-lane="enemy"],
+      &[data-track="13"][data-lane="enemy"],
+      &[data-track="5"][data-lane="middle"],
+      &[data-track="12"][data-lane="middle"] {
+        border-bottom: $passableBorder;
+      }
+    }
+  }
+}
+
+.end-game {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  position: absolute;
+  width: 100%;
+  height: 100%;
+
+  background: rgba(0, 0, 0, .2);
+
+  z-index: 7;
+
+  .victor-name {
+    font-size: 3em;
+    font-weight: bold;
+    color: $white75;
+  }
+
+  &.win .victor-name span {
+    color: rgba(0, 0, 200, 1);
+  }
+
+  &.loss .victor-name span {
+    color: rgba(200, 0, 0, 1);
+  }
+}
+
+//@for $i from 1 through 14 {
+//  .board .row .cell[data-track="#{$i}"] {
+//    background: rgba(128, 128, 255, 0.3 - (0.02 * $i));
+//  }
+//}
+
+// Transitions.
+
+@keyframes fade-in-out {
+  0%, 100% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    background: transparent;
+  }
+  50% {
+    background: $boxBackground;
+  }
+}
+
+// Scroll bars.
+
+*::-webkit-scrollbar {
+  width: 1em;
+}
+*::-webkit-scrollbar-track {
+  -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+}
+*::-webkit-scrollbar-thumb {
+  background-color: $white25;
 }
