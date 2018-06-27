@@ -11,123 +11,203 @@
 </head>
 <body>
 
-    <div class="header">
-        <h1>The Royal Game Of Ur</h1>
-    </div>
-
-    <div class="player-settings">
-        <label>
-            Your name
-            <input type="text" id="playerName">
-            <button id="updatePlayerName">Update</button>
-        </label>
-    </div>
-
-    <!--<div class="pre-game-dice-box hidden">-->
-        <!--<div class="dice-box">-->
-            <!--<div class="dice"></div>-->
-            <!--<div class="dice"></div>-->
-            <!--<div class="dice"></div>-->
-            <!--<div class="dice"></div>-->
-        <!--</div>-->
-    <!--</div>-->
-
-    <div class="play-area hidden">
-        <div>
-            <div id="whoseTurn">Challenge a player below.</div>
-            <div id="currentRoll">Start a game to roll the dice.</div>
-            <div id="playerTokensWaiting">?</div>
-            <div id="enemyTokensWaiting">?</div>
-        </div>
-
-        <div class="game" id="game">
-
-            <div class="input">
-                <div class="row">
-                    <div class="cell" data-lane="enemy" data-track="4"></div>
-                    <div class="cell" data-lane="enemy" data-track="3"></div>
-                    <div class="cell" data-lane="enemy" data-track="2"></div>
-                    <div class="cell" data-lane="enemy" data-track="1"></div>
-                    <div class="cell" data-lane="enemy" data-track="0"></div>
-                    <div class="cell" data-lane="enemy" data-track="15"></div>
-                    <div class="cell" data-lane="enemy" data-track="14"></div>
-                    <div class="cell" data-lane="enemy" data-track="13"></div>
+    <div class="overlay solid start-hidden" id="authentication_overlay">
+        <div class="authentication-container">
+            <div class="authentication-box">
+                <div class="login-box">
+                    <div class="heading">Login</div>
+                    <div class="form">
+                        <fieldset>
+                            <label for="login_email">Email</label>
+                            <input type="text" id="login_email">
+                        </fieldset>
+                        <fieldset>
+                            <label for="login_password">Password</label>
+                            <input type="password" id="login_password">
+                        </fieldset>
+                        <fieldset>
+                            <label for="login_remember">Remember Me</label>
+                            <input type="checkbox" id="login_remember">
+                        </fieldset>
+                        <button id="login_submit">Login</button>
+                    </div>
                 </div>
-                <div class="row">
-                    <div class="cell" data-lane="middle" data-track="5"></div>
-                    <div class="cell" data-lane="middle" data-track="6"></div>
-                    <div class="cell" data-lane="middle" data-track="7"></div>
-                    <div class="cell" data-lane="middle" data-track="8"></div>
-                    <div class="cell" data-lane="middle" data-track="9"></div>
-                    <div class="cell" data-lane="middle" data-track="10"></div>
-                    <div class="cell" data-lane="middle" data-track="11"></div>
-                    <div class="cell" data-lane="middle" data-track="12"></div>
-                </div>
-                <div class="row">
-                    <div class="cell" data-lane="player" data-track="4"></div>
-                    <div class="cell" data-lane="player" data-track="3"></div>
-                    <div class="cell" data-lane="player" data-track="2"></div>
-                    <div class="cell" data-lane="player" data-track="1"></div>
-                    <div class="cell" data-lane="player" data-track="0"></div>
-                    <div class="cell" data-lane="player" data-track="15"></div>
-                    <div class="cell" data-lane="player" data-track="14"></div>
-                    <div class="cell" data-lane="player" data-track="13"></div>
+                <div class="register-box">
+                    <div class="heading">Register</div>
+                    <div class="form">
+                        <fieldset>
+                            <label for="register_email">Email</label>
+                            <input type="text" id="register_email">
+                        </fieldset>
+                        <fieldset>
+                            <label for="register_name">Display Name</label>
+                            <input type="text" id="register_name">
+                        </fieldset>
+                        <fieldset>
+                            <label for="register_password">Password</label>
+                            <input type="password" id="register_password">
+                        </fieldset>
+                        <fieldset>
+                            <label for="register_password_again">Password Again</label>
+                            <input type="password" id="register_password_again">
+                        </fieldset>
+                        <button id="register_submit">Register</button>
+                    </div>
                 </div>
             </div>
+        </div>
+    </div>
 
-            <div class="board">
+    <div class="app-container">
 
-                <div class="row enemy">
-                    <div data-lane="enemy" data-track="4" class="cell another nb-r nb-b"></div>
-                    <div data-lane="enemy" data-track="3" class="cell nb-l nb-r"></div>
-                    <div data-lane="enemy" data-track="2" class="cell nb-l nb-r"></div>
-                    <div data-lane="enemy" data-track="1" class="cell nb-l nb-r"></div>
-                    <div data-lane="enemy" data-track="0" class="cell nb-l empty"></div>
-                    <div data-lane="enemy" data-track="15" class="cell nb-r empty"></div>
-                    <div data-lane="enemy" data-track="14" class="cell nb-l nb-r another"></div>
-                    <div data-lane="enemy" data-track="13" class="cell nb-l nb-b"></div>
+        <div class="left">
+
+            <div class="title">Royal Game Of Ur</div>
+
+            <div class="players-online">
+                <div class="subheading">Players Online</div>
+                <ul class="player-list">
+                    <!-- Generated dynamically -->
+                </ul>
+            </div>
+
+            <div class="my-games">
+                <div class="subheading">Your Games</div>
+                <ul class="challenge-list">
+                    <!-- Generated dynamically -->
+                </ul>
+                <ul class="game-list">
+                    <!-- Generated dynamically -->
+                </ul>
+            </div>
+        </div>
+
+        <div class="right">
+
+            <div class="game-container">
+
+                <div class="stats">
+                    <div class="box turn">
+                        <div class="heading">Turn</div>
+                        <div class="content">
+                            <!-- Generated dynamically -->
+                        </div>
+                    </div>
+                    <div class="box details">
+
+                        <div class="player">
+                            <div class="name">
+                                <!-- Generated dynamically -->
+                            </div>
+                            <div class="pieces">
+                                <!-- Generated dynamically -->
+                            </div>
+                        </div>
+                        <div class="vs">
+                            vs
+                        </div>
+                        <div class="enemy">
+                            <div class="name">
+                                <!-- Generated dynamically -->
+                            </div>
+                            <div class="pieces">
+                                <!-- Generated dynamically -->
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="box current-player">
+                        <div class="heading">Current Player</div>
+                        <div class="content">
+                            <!-- Generated dynamically -->
+                        </div>
+                    </div>
+                    <div class="box dice">
+                        <div class="heading">Dice</div>
+                        <div class="content">
+                            <!-- Generated dynamically -->
+                        </div>
+                    </div>
+                    <div class="box help">
+                        <div class="heading">Help</div>
+                        <div class="content">Show</div>
+                    </div>
                 </div>
 
-                <div class="row middle">
-                    <div data-lane="middle" data-track="5" class="cell nb-t nb-r nb-b"></div>
-                    <div data-lane="middle" data-track="6" class="cell nb-l nb-r"></div>
-                    <div data-lane="middle" data-track="7" class="cell nb-l nb-r"></div>
-                    <div data-lane="middle" data-track="8" class="cell nb-l nb-r another safe"></div>
-                    <div data-lane="middle" data-track="9" class="cell nb-l nb-r"></div>
-                    <div data-lane="middle" data-track="10" class="cell nb-l nb-r"></div>
-                    <div data-lane="middle" data-track="11" class="cell nb-l nb-r"></div>
-                    <div data-lane="middle" data-track="12" class="cell nb-l nb-t nb-b"></div>
+                <div class="game">
+                    <div class="board-ratio-lock">
+                        <div class="board-container">
+
+                            <div class="board">
+                                <div class="row">
+                                    <div data-lane="enemy" data-track="4" class="cell">
+                                        <div class="special"></div>
+                                    </div>
+                                    <div data-lane="enemy" data-track="3" class="cell"></div>
+                                    <div data-lane="enemy" data-track="2" class="cell"></div>
+                                    <div data-lane="enemy" data-track="1" class="cell"></div>
+                                    <div data-lane="enemy" data-track="0" class="cell"></div>
+                                    <div data-lane="enemy" data-track="15" class="cell"></div>
+                                    <div data-lane="enemy" data-track="14" class="cell"></div>
+                                    <div data-lane="enemy" data-track="13" class="cell">
+                                        <div class="special"></div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div data-lane="middle" data-track="5" class="cell"></div>
+                                    <div data-lane="middle" data-track="6" class="cell"></div>
+                                    <div data-lane="middle" data-track="7" class="cell"></div>
+                                    <div data-lane="middle" data-track="8" class="cell">
+                                        <div class="special protected"></div>
+                                    </div>
+                                    <div data-lane="middle" data-track="9" class="cell"></div>
+                                    <div data-lane="middle" data-track="10" class="cell"></div>
+                                    <div data-lane="middle" data-track="11" class="cell"></div>
+                                    <div data-lane="middle" data-track="12" class="cell"></div>
+                                </div>
+                                <div class="row">
+                                    <div data-lane="player" data-track="4" class="cell">
+                                        <div class="special"></div>
+                                    </div>
+                                    <div data-lane="player" data-track="3" class="cell"></div>
+                                    <div data-lane="player" data-track="2" class="cell"></div>
+                                    <div data-lane="player" data-track="1" class="cell"></div>
+                                    <div data-lane="player" data-track="0" class="cell"></div>
+                                    <div data-lane="player" data-track="15" class="cell"></div>
+                                    <div data-lane="player" data-track="14" class="cell"></div>
+                                    <div data-lane="player" data-track="13" class="cell">
+                                        <div class="special"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
                 </div>
 
-                <div class="row player">
-                    <div data-lane="player" data-track="4" class="cell nb-t nb-r another"></div>
-                    <div data-lane="player" data-track="3" class="cell nb-l nb-r"></div>
-                    <div data-lane="player" data-track="2" class="cell nb-l nb-r"></div>
-                    <div data-lane="player" data-track="1" class="cell nb-l nb-r"></div>
-                    <div data-lane="player" data-track="0" class="cell nb-l empty"></div>
-                    <div data-lane="player" data-track="15" class="cell nb-r empty"></div>
-                    <div data-lane="player" data-track="14" class="cell nb-l nb-r another"></div>
-                    <div data-lane="player" data-track="13" class="cell nb-t nb-l"></div>
+                <div class="bottom">
+                    <div class="chat">
+                        <div class="heading">Chat</div>
+                        <ul class="chat-list">
+                            <li>todo</li>
+                        </ul>
+                        <div class="message-box">
+                            <input type="text">
+                            <button>Send</button>
+                        </div>
+                    </div>
+                    <div class="events">
+                        <div class="heading">Game Event Log</div>
+                        <ul class="event-list">
+                            <!-- Generated dynamically -->
+                        </ul>
+                    </div>
                 </div>
 
             </div>
 
         </div>
 
-        <div class="dice-box">
-            <!--<div class="dice"></div>-->
-            <!--<div class="dice"></div>-->
-            <!--<div class="dice"></div>-->
-            <!--<div class="dice"></div>-->
-        </div>
-        <div class="clear-fix"></div>
-    </div>
-
-    <div class="message-area"></div>
-
-    <div class="challenge-area">
-        <h2>Players</h2>
-        <div id="connected-players-list"></div>
     </div>
 
 </body>
