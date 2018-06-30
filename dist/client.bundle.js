@@ -10799,12 +10799,12 @@ module.exports = __webpack_require__(89);
 __webpack_require__(90);
 __webpack_require__(130);
 var Game = __webpack_require__(131);
-var CONFIG = __webpack_require__(133);
 var io = __webpack_require__(134);
 
 // Create a placeholder game object.
 var currentGameState = new Game(1, 2);
 
+// Settings to use during socket setup.
 var socketSettings = {};
 
 var $authenticationOverlay = $('#authentication_overlay');
@@ -10815,12 +10815,6 @@ if (localStorage.getItem('remember-token')) {
       rememberToken: localStorage.getItem('remember-token')
     }
   };
-} else {
-  $authenticationOverlay.show();
-}
-
-function byId(id) {
-  return document.getElementById(id);
 }
 
 /** @var {Socket} socket */
@@ -10877,6 +10871,10 @@ var events = {
        */
       success: function success(payload) {
         console.log('auth.login.success ' + payload.name + ' (' + payload.id + ')');
+
+        // Clear the login form.
+        $('.login-box form').trigger('reset');
+
         myPlayerId = payload.id;
         if (payload.rememberToken) {
           // Save the rememberToken for future use.
@@ -10887,6 +10885,7 @@ var events = {
           console.log('loaded chatLog', chatLog);
         }
         renderChat();
+
         // We're done with the authentication overlay.
         $('#authentication_overlay').hide();
       },
@@ -10896,7 +10895,7 @@ var events = {
        */
       failure: function failure(failureReason) {
         console.log('auth.login.failure', failureReason);
-        messageBox('Authentication Failed', failureReason);
+        showMessageBox('Authentication Failed', failureReason);
       }
     },
     register: {
@@ -10906,6 +10905,16 @@ var events = {
        */
       success: function success(newUser) {
         console.log('auth.register.success', newUser);
+
+        // Let the user know that registration worked.
+        showMessageBox('Account Created', 'You may now log in.');
+
+        // Move the email to the login form focus the login password input.
+        $('#login_email').val($('#register_email').val());
+        $('#login_password').focus();
+
+        // Clear the registration form.
+        $('.register-box form').trigger('reset');
       },
       /**
        * Registration failed.
@@ -10913,6 +10922,7 @@ var events = {
        */
       failure: function failure(failureReason) {
         console.log('auth.register.failure', failureReason);
+        showMessageBox('Registration Failed', failureReason);
       }
     },
     /**
@@ -11211,6 +11221,13 @@ $(function () {
   $('#login_submit').on('click', doLogin);
   $('#register_submit').on('click', doRegister);
 
+  $('form').on('submit', function (event) {
+    // This seems to allow some password managers to prompt to save the site
+    // even though we haven't changed pages.
+    event.stopPropagation();
+    event.preventDefault();
+  });
+
   // Chat functionality.
   $('.chat input').off('keypress').on('keypress', function (e) {
     if (e.which === 13) {
@@ -11244,6 +11261,7 @@ function doLogin() {
   var password = $('#login_password').val();
   var remember = $('#login_remember').is(':checked');
 
+  // Form fields will be emptied when the server responds with success or failure.
   socket.emit('login', {
     email: email,
     password: password,
@@ -11259,6 +11277,7 @@ function doRegister() {
   var password = $('#register_password').val();
   var passwordAgain = $('#register_password_again').val();
 
+  // Form fields will be emptied when the server responds with success or failure.
   socket.emit('register', {
     name: name,
     email: email,
@@ -11700,37 +11719,22 @@ function showAcceptDeclineCancel(title, message) {
       reject();
     }
 
-    var $messageBox = $('<div>');
-    $messageBox.addClass('container');
-    $messageBox.on('click', stopPropagation);
+    var $messageBox = $('<div>').addClass('container').on('click', stopPropagation);
+    var $title = $('<div>').addClass('heading').text(title);
+    var $body = $('<p>').text(message);
+    var $controls = $('<div>').addClass('controls');
 
-    var $title = $('<div>');
-    $title.addClass('heading');
-    $title.text(title);
-
-    var $body = $('<p>');
-    $body.text(message);
-
-    var $controls = $('<div>');
-    $controls.addClass('controls');
-
-    var $acceptButton = $('<button>');
-    $acceptButton.text('Accept');
-    $acceptButton.on('click', function () {
+    var $acceptButton = $('<button>').text('Accept').on('click', function () {
       $overlay.remove();
       resolve('accept');
     });
 
-    var $declineButton = $('<button>');
-    $declineButton.text('Decline');
-    $declineButton.on('click', function () {
+    var $declineButton = $('<button>').text('Decline').on('click', function () {
       $overlay.remove();
       resolve('decline');
     });
 
-    var $cancelButton = $('<button>');
-    $cancelButton.text('Cancel');
-    $cancelButton.on('click', dismissOverlay);
+    var $cancelButton = $('<button>').text('Cancel').on('click', dismissOverlay);
 
     $controls.append($cancelButton, $declineButton, $acceptButton);
     $messageBox.append($title, $body, $controls);
@@ -17154,26 +17158,7 @@ function Player(pid, playerNumber) {
 }
 
 /***/ }),
-/* 133 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-// Make a copy of this file and call it 'config.js' changing the properties below as required.
-module.exports = {
-
-    // The is the URL that the client will connect to. Append the port as required.
-    SERVER: 'http://localhost:3000',
-
-    // This is the port that the server will listen to connections on.
-    PORT: 3000,
-
-    // Developer mode.
-    DEV: true
-};
-
-/***/ }),
+/* 133 */,
 /* 134 */
 /***/ (function(module, exports, __webpack_require__) {
 

@@ -1,12 +1,12 @@
 require('jquery/src/jquery');
 require('./scss/ur.scss');
 const Game = require('./js/Game');
-const CONFIG = require('./js/config');
 const io = require('socket.io-client');
 
 // Create a placeholder game object.
 let currentGameState = new Game(1, 2);
 
+// Settings to use during socket setup.
 let socketSettings = {};
 
 const $authenticationOverlay = $('#authentication_overlay');
@@ -17,12 +17,6 @@ if (localStorage.getItem('remember-token')) {
       rememberToken: localStorage.getItem('remember-token')
     }
   };
-} else {
-  $authenticationOverlay.show();
-}
-
-function byId (id) {
-  return document.getElementById(id);
 }
 
 /** @var {Socket} socket */
@@ -79,6 +73,10 @@ const events = {
        */
       success: function (payload) {
         console.log(`auth.login.success ${payload.name} (${payload.id})`);
+
+        // Clear the login form.
+        $('.login-box form').trigger('reset');
+
         myPlayerId = payload.id;
         if (payload.rememberToken) {
           // Save the rememberToken for future use.
@@ -89,6 +87,7 @@ const events = {
           console.log('loaded chatLog', chatLog);
         }
         renderChat();
+
         // We're done with the authentication overlay.
         $('#authentication_overlay').hide();
       },
@@ -98,7 +97,7 @@ const events = {
        */
       failure: function (failureReason) {
         console.log('auth.login.failure', failureReason);
-        messageBox('Authentication Failed', failureReason);
+        showMessageBox('Authentication Failed', failureReason);
       }
     },
     register: {
@@ -108,6 +107,16 @@ const events = {
        */
       success: function (newUser) {
         console.log('auth.register.success', newUser);
+
+        // Let the user know that registration worked.
+        showMessageBox('Account Created', 'You may now log in.');
+
+        // Move the email to the login form focus the login password input.
+        $('#login_email').val($('#register_email').val());
+        $('#login_password').focus();
+
+        // Clear the registration form.
+        $('.register-box form').trigger('reset');
       },
       /**
        * Registration failed.
@@ -115,6 +124,7 @@ const events = {
        */
       failure: function (failureReason) {
         console.log('auth.register.failure', failureReason);
+        showMessageBox('Registration Failed', failureReason);
       }
     },
     /**
@@ -413,6 +423,13 @@ $(() => {
   $('#login_submit').on('click', doLogin);
   $('#register_submit').on('click', doRegister);
 
+  $('form').on('submit', (event) => {
+    // This seems to allow some password managers to prompt to save the site
+    // even though we haven't changed pages.
+    event.stopPropagation();
+    event.preventDefault();
+  });
+
   // Chat functionality.
   $('.chat input').off('keypress').on('keypress', function (e) {
     if (e.which === 13) {
@@ -470,6 +487,7 @@ function doLogin () {
   const password = $('#login_password').val();
   const remember = $('#login_remember').is(':checked');
 
+  // Form fields will be emptied when the server responds with success or failure.
   socket.emit('login', {
     email: email,
     password: password,
@@ -485,6 +503,7 @@ function doRegister () {
   const password = $('#register_password').val();
   const passwordAgain = $('#register_password_again').val();
 
+  // Form fields will be emptied when the server responds with success or failure.
   socket.emit('register', {
     name: name,
     email: email,
@@ -931,37 +950,22 @@ function showAcceptDeclineCancel (title, message) {
       reject();
     }
 
-    const $messageBox = $('<div>');
-    $messageBox.addClass('container');
-    $messageBox.on('click', stopPropagation);
+    const $messageBox = $('<div>').addClass('container').on('click', stopPropagation);
+    const $title = $('<div>').addClass('heading').text(title);
+    const $body = $('<p>').text(message);
+    const $controls = $('<div>').addClass('controls');
 
-    const $title = $('<div>');
-    $title.addClass('heading');
-    $title.text(title);
-
-    const $body = $('<p>');
-    $body.text(message);
-
-    const $controls = $('<div>');
-    $controls.addClass('controls');
-
-    const $acceptButton = $('<button>');
-    $acceptButton.text('Accept');
-    $acceptButton.on('click', () => {
+    const $acceptButton = $('<button>').text('Accept').on('click', () => {
       $overlay.remove();
       resolve('accept');
     });
 
-    const $declineButton = $('<button>');
-    $declineButton.text('Decline');
-    $declineButton.on('click', () => {
+    const $declineButton = $('<button>').text('Decline').on('click', () => {
       $overlay.remove();
       resolve('decline');
     });
 
-    const $cancelButton = $('<button>');
-    $cancelButton.text('Cancel');
-    $cancelButton.on('click', dismissOverlay);
+    const $cancelButton = $('<button>').text('Cancel').on('click', dismissOverlay);
 
     $controls.append($cancelButton, $declineButton, $acceptButton);
     $messageBox.append($title, $body, $controls);

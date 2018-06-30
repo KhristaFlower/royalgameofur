@@ -256,12 +256,13 @@ io.on('connection', function (socket) {
     const formValid = (payload.email && payload.name && payload.password);
     const passwordConfirmed = (payload.password === payload.passwordAgain);
     const emailInUse = (getUserByProperty('email', payload.email) !== null);
+    const nameInUser = (getUserByProperty('name', payload.name) !== null);
     const hashedPassword = bcrypt.hashSync(payload.password, saltRounds);
 
     console.log('after has result', hashedPassword);
 
     // Verify that we have an email, username, password, and confirmation.
-    if (!formValid || !passwordConfirmed || hashedPassword === null || emailInUse) {
+    if (!formValid || !passwordConfirmed || hashedPassword === null || emailInUse || nameInUser) {
       let failureReason = 'unknown';
       if (!formValid) {
         failureReason = 'missing fields';
@@ -271,6 +272,8 @@ io.on('connection', function (socket) {
         failureReason = 'server error';
       } else if (emailInUse) {
         failureReason = 'email in use';
+      } else if (nameInUser) {
+        failureReason = 'display name in use';
       }
 
       console.log('authRegister failed ' + socket.id + ' ' + failureReason);
