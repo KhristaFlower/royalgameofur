@@ -450,6 +450,8 @@ io.on('connection', function (socket) {
       // If the cell we just landed on has an enemy inside of it...
       if ((gameState.track[destination] & currentEnemy.number) === currentEnemy.number) {
 
+        gameState.log(currentPlayer.name + ' landed on a token!');
+
         // Remove them.
         gameState.track[destination] ^= currentEnemy.number;
 

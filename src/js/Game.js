@@ -117,6 +117,8 @@ Game.prototype.rollDice = function () {
  */
 Game.prototype.getTrack = function () {
 
+  return (new Array(15)).fill(0);
+
   const track = {};
 
   for (let i = 0; i <= 15; i++) {

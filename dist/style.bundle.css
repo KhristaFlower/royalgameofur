@@ -53,7 +53,6 @@ body * {
 html {
   height: 100vh;
   background-image: linear-gradient(to left top, #0e1d2a, #0d232e, #0c2832, #0e2e34, #123336);
-  font-family: sans-serif;
   cursor: default;
   user-select: none; }
 
@@ -321,21 +320,24 @@ html {
   font-size: 1em;
   background: rgba(255, 255, 255, 0.1); }
 
-.game-container .bottom .chat-list,
+.game-container .bottom .chat-container,
 .game-container .bottom .event-list {
   color: rgba(255, 255, 255, 0.5);
   flex-grow: 1;
   overflow-y: scroll; }
 
-.game-container .bottom .chat-list {
-  flex-grow: 1; }
-  .game-container .bottom .chat-list li {
+.game-container .bottom .chat-container {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  flex-basis: 0; }
+  .game-container .bottom .chat-container li {
     display: flex;
     flex-direction: column;
     padding: 0.5em; }
-    .game-container .bottom .chat-list li:nth-child(even) {
+    .game-container .bottom .chat-container li:nth-child(even) {
       background: rgba(255, 255, 255, 0.1); }
-    .game-container .bottom .chat-list li .name {
+    .game-container .bottom .chat-container li .name {
       color: rgba(255, 255, 255, 0.25); }
 
 .game-container .bottom .event-list li {
@@ -353,8 +355,10 @@ html {
 .game-container .bottom .chat .message-box {
   display: flex;
   flex-direction: row;
-  flex-grow: 0;
-  border-top: 1px solid rgba(255, 255, 255, 0.2); }
+  flex-grow: 1;
+  flex-basis: 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  max-height: 2em; }
   .game-container .bottom .chat .message-box input {
     flex-grow: 1;
     background: rgba(0, 0, 0, 0.3);

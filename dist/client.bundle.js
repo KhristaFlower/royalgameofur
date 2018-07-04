@@ -10884,7 +10884,7 @@ var events = {
           chatLog = JSON.parse(localStorage.getItem('local-chat-' + myPlayerId));
           console.log('loaded chatLog', chatLog);
         }
-        renderChat();
+        renderChat(true);
 
         // We're done with the authentication overlay.
         $('#authentication_overlay').hide();
@@ -11064,7 +11064,7 @@ var events = {
       renderGameBoard();
 
       // Render the chat for this game.
-      renderChat();
+      renderChat(true);
     },
     /**
      * Sent by the server when another player did something to send us an update.
@@ -11145,7 +11145,20 @@ var events = {
       }
       chatLog[message.gameId].push(message);
 
-      renderChat();
+      // Is this message for the chat we have open already?
+      if (message.gameId === currentGame.id) {
+        // We will only auto-scroll the box if the user hasn't
+        // scrolled it from the bottom.
+        var $chatList = $('.chat-list');
+        var $chatContainer = $chatList.parent();
+
+        var bottomOfBox = $chatContainer.height() + $chatContainer.scrollTop();
+        var bottomOfList = $chatList.height() - 10;
+
+        var scrollTheChat = bottomOfBox >= bottomOfList;
+        console.log({ bottomOfBox: bottomOfBox, bottomOfList: bottomOfList, scrollTheChat: scrollTheChat });
+        renderChat(scrollTheChat);
+      }
     },
     /**
      * Sent when the player connects to the server, it is to update any messages
@@ -11163,7 +11176,7 @@ var events = {
         chatLog[message.gameId].push(message);
       }
 
-      renderChat();
+      renderChat(true);
     }
   }
 };
@@ -11747,6 +11760,9 @@ function showAcceptDeclineCancel(title, message) {
 
 // endregion
 
+/**
+ * Called to end the users session by clearing client variables and changing the UI.
+ */
 function loggedOut() {
   myPlayerId = null;
   lobbyPlayerList = [];
@@ -11767,7 +11783,7 @@ function loggedOut() {
   chatLog = {};
 
   // Render interfaces that need to be updated after logout.
-  renderChat();
+  renderChat(false);
   renderTitle();
 }
 
@@ -11783,11 +11799,17 @@ var chatLog = {};
  */
 var MessageModel = {};
 
-function renderChat() {
+/**
+ * Render the chat box to show the current message list.
+ * @param {boolean} scrollToBottom Should the container be scrolled down to the new message?
+ */
+function renderChat(scrollToBottom) {
+  var $chatList = $('.chat-list');
+
   // Nothing to render if we don't have a game open.
   if (currentGame === null || !(currentGame.id in chatLog)) {
     // If the chat is open, clear it.
-    $('.chat-list').empty();
+    $chatList.empty();
     return;
   }
 
@@ -11801,25 +11823,38 @@ function renderChat() {
 
   for (var i = 0; i < currentChat.length; i++) {
     var $chatItem = $('<li>');
-
     var $playerName = $('<div class="name">').text(currentChat[i].senderName);
     var $playerMessage = $('<div class="message">').text(currentChat[i].message);
 
     $chatItem.append($playerName, $playerMessage);
-
     $newChatList.append($chatItem);
   }
 
-  $('.chat-list').replaceWith($newChatList);
+  $chatList.replaceWith($newChatList);
+
+  if (scrollToBottom) {
+    scrollChat();
+  }
 }
 
+/**
+ * Scroll the chat box to to the bottom.
+ */
+function scrollChat() {
+  $('.chat-container').scrollTop($('.chat-list').height());
+}
+
+/**
+ * Send the contents of the chat input to the other player.
+ */
 function sendChat() {
 
   if (currentGame === null) {
     return;
   }
 
-  var message = $('.chat input').val();
+  var $chatInput = $('.chat input');
+  var message = $chatInput.val();
 
   if (message.trim().length === 0) {
     return;
@@ -11833,7 +11868,7 @@ function sendChat() {
   });
 
   // Clear the text box.
-  $('.chat input').val('');
+  $chatInput.val('');
 }
 
 /***/ }),
@@ -16912,6 +16947,8 @@ Game.prototype.rollDice = function () {
  * @returns {Object.<int,int>} The pre-populated track.
  */
 Game.prototype.getTrack = function () {
+
+  return new Array(15).fill(0);
 
   var track = {};
 

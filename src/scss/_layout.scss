@@ -17,7 +17,6 @@ body * {
 html {
   height: 100vh;
   background-image: linear-gradient(to left top, #0e1d2a, #0d232e, #0c2832, #0e2e34, #123336);
-  font-family: sans-serif;
   // Make the UI feel less website-y.
   // We'll remove these on elements where it makes sense to do so.
   cursor: default;
@@ -395,7 +394,7 @@ html {
   background: $boxBackground;
 }
 
-.game-container .bottom .chat-list,
+.game-container .bottom .chat-container,
 .game-container .bottom .event-list {
   color: $white50;
   flex-grow: 1;
@@ -403,8 +402,11 @@ html {
   overflow-y: scroll;
 }
 
-.game-container .bottom .chat-list {
+.game-container .bottom .chat-container {
+  display: flex;
+  flex-direction: column;
   flex-grow: 1;
+  flex-basis: 0;
 
   li {
     display: flex;
@@ -451,9 +453,12 @@ html {
 .game-container .bottom .chat .message-box {
   display: flex;
   flex-direction: row;
-  flex-grow: 0;
+  flex-grow: 1;
+  flex-basis: 0;
 
   border-top: $boxBorder;
+
+  max-height: 2em;
 
   input {
     flex-grow: 1;
@@ -497,6 +502,10 @@ html {
 }
 
 /* AUTHENTICATION */
+
+.authentication-container {
+
+}
 
 .authentication-box {
   display: flex;
