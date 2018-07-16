@@ -1,0 +1,75 @@
+svg text {
+  alignment-baseline: central;
+  text-anchor: middle;
+  font-size: 3em;
+  font-weight: bold;
+  fill: rgba(0, 0, 0, .05);
+  font-family: Futura, Helvetica, sans-serif;
+}
+
+svg.cell {
+
+  // Tokens.
+  circle.token {
+    fill: transparent;
+  }
+  &.player circle.token {
+    fill: rgb(128, 128, 255);
+  }
+  &.enemy circle.token {
+    fill: rgb(255, 128, 128);
+  }
+
+  // Background.
+  $light: 220;
+  $dark: 200;
+  .background.light {
+    fill: rgb($light, $light, $light);
+  }
+  .background.dark {
+    fill: rgb($dark, $dark, $dark);
+  }
+  .background.empty {
+    fill: white;
+  }
+
+  // Input.
+  &:not(.valid) .valid-move {
+    opacity: 0;
+  }
+
+  &.valid circle.valid-move {
+    fill: #F8E71C;
+  }
+  &.valid rect.valid-move {
+    fill: rgba(255, 255, 0, .2);
+  }
+
+  &.valid {
+    cursor: pointer;
+  }
+
+  // Only show the arrows from valid cells if the player
+  // is hovering over them.
+  &.valid + svg.arrow {
+    opacity: 0;
+  }
+  &.valid:hover + svg.arrow {
+    opacity: 1;
+  }
+}
+
+// Arrow styles.
+.arrow {
+  pointer-events: none;
+
+  &.player .part{
+    fill: rgba(0, 0, 255, .2);
+  }
+  &.enemy .part {
+    fill: rgba(255, 0, 0, .2);
+  }
+  &.last .part {
+    fill: rgba(128, 128, 128, .2);
+  }
+}

@@ -116,16 +116,7 @@ Game.prototype.rollDice = function () {
  * @returns {Object.<int,int>} The pre-populated track.
  */
 Game.prototype.getTrack = function () {
-
   return (new Array(15)).fill(0);
-
-  const track = {};
-
-  for (let i = 0; i <= 15; i++) {
-    track[i] = 0;
-  }
-
-  return track;
 };
 
 /**
@@ -208,6 +199,16 @@ Game.prototype.getValidMoves = function () {
 };
 
 /**
+ * Get the values of this object.
+ *
+ * @param {object} obj The object to get the values from.
+ * @returns {[]} An array of values from the provided object.
+ */
+Game.prototype.getValues = function (obj) {
+  return Object.keys(obj).map((k) => obj[k]);
+};
+
+/**
  * Check to see if there are any valid moves for the current player.
  *
  * @returns {boolean} True if the current player has valid moves; false otherwise.
@@ -215,7 +216,7 @@ Game.prototype.getValidMoves = function () {
 Game.prototype.hasValidMoves = function () {
 
   // Collate all the booleans representing valid moves for each position on the track [true, false, false, true, etc].
-  const validMovesBoolArray = Object.values(this.getValidMoves());
+  const validMovesBoolArray = this.getValues(this.getValidMoves());
 
   // Sum all the booleans - a non-zero value indicates a number of valid moves.
   const numberOfValidMoves = validMovesBoolArray.reduce(function (boolean, sumOfBooleans) {

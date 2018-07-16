@@ -1,10 +1,20 @@
 $boxPadding: .5em;
-$boxBorder: 1px solid rgba(255, 255, 255, .2);
-$boxBackground: rgba(255, 255, 255, .1);
+$boxBorder: 0;//1px solid rgba(0, 0, 0, .2);
+$boxBackground: rgba(0, 0, 0, 0.25);
 
-$white75: rgba(255, 255, 255, .74);
-$white50: rgba(255, 255, 255, .5);
-$white25: rgba(255, 255, 255, .25);
+$base: 0;
+
+$c75: rgba($base, $base, $base, .75);
+$c50: rgba($base, $base, $base, .5);
+$c25: rgba($base, $base, $base, .25);
+
+@mixin fill-parent {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+}
 
 body * {
   box-sizing: border-box;
@@ -16,7 +26,7 @@ body * {
 
 html {
   height: 100vh;
-  background-image: linear-gradient(to left top, #0e1d2a, #0d232e, #0c2832, #0e2e34, #123336);
+  background: #fff;
   // Make the UI feel less website-y.
   // We'll remove these on elements where it makes sense to do so.
   cursor: default;
@@ -47,7 +57,7 @@ html {
   flex-grow: 0;
   justify-content: center;
 
-  color: $white75;
+  color: $c75;
   text-transform: capitalize;
   font-weight: bold;
   text-align: center;
@@ -78,7 +88,7 @@ html {
   display: flex;
   flex-grow: 0;
 
-  color: $white75;
+  color: $c75;
   text-transform: capitalize;
   font-weight: bold;
   text-align: center;
@@ -91,7 +101,7 @@ html {
   padding: .25em .5em;
   cursor: pointer;
 
-  color: $white50;
+  color: $c50;
 
   &:hover {
     background: rgba(255, 255, 255, .5);
@@ -108,8 +118,18 @@ html {
 
   margin-top: .25em;
   background: rgba(255, 255, 255, .05);
-  color: $white50;
+  color: $c50;
   cursor: pointer;
+  position: relative;
+
+  &.current-game {
+    background: rgba(0, 255, 0, .3);
+  }
+
+  &:not(.current-game).players-turn {
+    //animation: pulse 2s ease infinite;
+    background: rgba(255, 255, 0, .3);
+  }
 
   &:first-child {
     margin-top: 0;
@@ -124,7 +144,7 @@ html {
     flex-direction: row;
 
     padding: 0 $boxPadding $boxPadding $boxPadding;
-    color: $white25;
+    color: $c25;
 
     .turn {
       flex-grow: 0;
@@ -137,8 +157,10 @@ html {
     }
   }
 
-  &:hover {
-    background: rgba(255, 255, 0, .2);
+  &:hover::after {
+    content: ' ';
+    @include fill-parent;
+    background: rgba(0, 0, 0, .1);
   }
 }
 
@@ -146,7 +168,7 @@ html {
   display: flex;
   flex-direction: column;
 
-  color: $white50;
+  color: $c50;
 
   li {
     background: rgba(255, 255, 255, .05);
@@ -203,7 +225,7 @@ html {
   }
 
   .heading {
-    color: $white75;
+    color: $c75;
     font-weight: bold;
     font-size: 1em;
     padding: $boxPadding 0;
@@ -211,7 +233,7 @@ html {
 
   .content {
     padding: 0 0 $boxPadding 0;
-    color: $white50;
+    color: $c50;
   }
 
   &.turn {
@@ -247,6 +269,8 @@ html {
   &.help {
     width: 80px;
     flex-grow: 0;
+
+    cursor: pointer;
   }
 
   &.details {
@@ -262,7 +286,7 @@ html {
 
       .name {
         //padding: .25em 0;
-        color: $white75;
+        color: $c75;
         font-weight: bold;
         margin-bottom: .5em;
       }
@@ -271,7 +295,7 @@ html {
     .vs {
       font-size: 2em;
       font-weight: bold;
-      color: $white25;
+      color: $c25;
       margin-bottom: .2em;
     }
 
@@ -387,7 +411,7 @@ html {
 
 .game-container .bottom .chat .heading,
 .game-container .bottom .events .heading {
-  color: $white75;
+  color: $c75;
   font-weight: bold;
   padding: .5em;
   font-size: 1em;
@@ -396,7 +420,7 @@ html {
 
 .game-container .bottom .chat-container,
 .game-container .bottom .event-list {
-  color: $white50;
+  color: $c50;
   flex-grow: 1;
 
   overflow-y: scroll;
@@ -415,11 +439,11 @@ html {
     padding: $boxPadding;
 
     &:nth-child(even) {
-      background: $boxBackground;
+      background: rgba(0, 0, 0, .1);
     }
 
     .name {
-      color: $white25;
+      color: $c25;
     }
   }
 }
@@ -432,22 +456,18 @@ html {
   padding: $boxPadding;
 
   &.even-turn {
-    background: rgba(255, 255, 255, .025);
+    background: rgba(0, 0, 0, .1);
   }
 
   .turn {
     margin-right: 1em;
-    color: $white25;
+    color: $c25;
     font-size: .75em;
   }
 
   .message {
 
   }
-
-  //&:nth-child(even) {
-  //  background: rgba(255, 255, 255, .025);
-  //}
 }
 
 .game-container .bottom .chat .message-box {
@@ -462,16 +482,16 @@ html {
 
   input {
     flex-grow: 1;
-    background: rgba(0, 0, 0, .3);
+    background: rgba(0, 0, 0, .2);
     border: 0;
-    color: $white50;
+    color: $c50;
     padding: .25em;
     font-size: 1em;
   }
   button {
     flex-grow: 0;
-    background: rgba(0, 0, 0, .3);
-    color: $white50;
+    background: rgba(0, 0, 0, .1);
+    color: $c50;
     border: 0;
     border-left: $boxBorder;
   }
@@ -481,7 +501,7 @@ html {
 
 .overlay {
   display: flex;
-  align-items: center;
+  align-items: start;
   justify-content: center;
 
   position: absolute;
@@ -491,6 +511,15 @@ html {
   height: 100%;
   background: rgba(0, 0, 0, .5);
   z-index: 10;
+
+  .overlay-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    width: 1000px;
+    height: 800px;
+  }
 
   &.solid {
     background: rgba(0, 0, 0, 1);
@@ -579,11 +608,10 @@ html {
   flex-direction: column;
 
   width: 300px;
-  //height: 200px;
 
-  background: #333;
+  background: #CCC;
   border: $boxBorder;
-  color: $white75;
+  color: $c75;
   text-align: center;
 
   .heading {
@@ -603,7 +631,7 @@ html {
 
   .close {
     font-size: .8em;
-    color: $white50;
+    color: $c50;
     padding: 1em;
     cursor: pointer;
     &:hover {
@@ -621,9 +649,9 @@ html {
   min-width: 300px;
   max-width: 600px;
 
-  background: #333;
+  background: #CCC;
   border: $boxBorder;
-  color: $white75;
+  color: $c75;
 
   .heading {
     padding: 1em;
@@ -642,7 +670,7 @@ html {
       margin: .5em;
       padding: .2em .5em;
 
-      color: $white50;
+      color: $c50;
       background: $boxBackground;
       border: $boxBorder;
       font-size: 1em;
@@ -650,7 +678,7 @@ html {
       cursor: pointer;
 
       &:hover {
-        background: rgba(255, 255, 255, .2);
+        background: rgba(0, 0, 0, .2);
       }
     }
   }
@@ -658,17 +686,9 @@ html {
 
 // Board
 
-@mixin fill-parent {
-  position: absolute;
-  left: 0;
-  top: 0;
-  right: 0;
-  bottom: 0;
-}
-
 $boardPadding: .25em;
 
-.board {
+div.board {
   display: flex;
   flex-direction: column;
 
@@ -813,7 +833,7 @@ $boardPadding: .25em;
   .victor-name {
     font-size: 3em;
     font-weight: bold;
-    color: $white75;
+    color: $c75;
   }
 
   &.win .victor-name span {
@@ -857,8 +877,8 @@ $boardPadding: .25em;
   width: 1em;
 }
 *::-webkit-scrollbar-track {
-  -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+  background: rgba(0, 0, 0, .05);
 }
 *::-webkit-scrollbar-thumb {
-  background-color: $white25;
+  background-color: $c25;
 }

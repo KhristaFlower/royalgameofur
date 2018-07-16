@@ -518,6 +518,8 @@ io.on('connection', function (socket) {
       // If the cell we just landed on has an enemy inside of it...
       if ((gameState.track[destination] & currentEnemy.number) === currentEnemy.number) {
 
+        gameState.log(currentPlayer.name + ' knocked off a token!');
+
         gameState.log(currentPlayer.name + ' landed on a token!');
 
         // Remove them.
@@ -534,7 +536,7 @@ io.on('connection', function (socket) {
     }
 
     // If we landed on a special square then we get another go.
-    if ([4, 8, 14].indexOf(destination) >= 0) {
+    if ([4, 8, 13].indexOf(destination) >= 0) {
       gameState.log(gameState.getCurrentPlayer().name + ' landed on a special square and gets another go');
 
       // Reset the dice, we don't increment the turn counter if we get another go.
@@ -560,7 +562,7 @@ io.on('connection', function (socket) {
       gameState.log('Thanks for playing!');
 
       setTimeout(function () {
-        // In one minute destroy the game.
+        // In 5 seconds destroy the game.
         delete gamesInProgress[gameState.id];
 
         // Tell the clients to remove the game from memory and the interface.
@@ -1170,16 +1172,7 @@ Game.prototype.rollDice = function () {
  * @returns {Object.<int,int>} The pre-populated track.
  */
 Game.prototype.getTrack = function () {
-
   return new Array(15).fill(0);
-
-  var track = {};
-
-  for (var i = 0; i <= 15; i++) {
-    track[i] = 0;
-  }
-
-  return track;
 };
 
 /**
@@ -1262,6 +1255,18 @@ Game.prototype.getValidMoves = function () {
 };
 
 /**
+ * Get the values of this object.
+ *
+ * @param {object} obj The object to get the values from.
+ * @returns {[]} An array of values from the provided object.
+ */
+Game.prototype.getValues = function (obj) {
+  return Object.keys(obj).map(function (k) {
+    return obj[k];
+  });
+};
+
+/**
  * Check to see if there are any valid moves for the current player.
  *
  * @returns {boolean} True if the current player has valid moves; false otherwise.
@@ -1269,7 +1274,7 @@ Game.prototype.getValidMoves = function () {
 Game.prototype.hasValidMoves = function () {
 
   // Collate all the booleans representing valid moves for each position on the track [true, false, false, true, etc].
-  var validMovesBoolArray = Object.values(this.getValidMoves());
+  var validMovesBoolArray = this.getValues(this.getValidMoves());
 
   // Sum all the booleans - a non-zero value indicates a number of valid moves.
   var numberOfValidMoves = validMovesBoolArray.reduce(function (boolean, sumOfBooleans) {

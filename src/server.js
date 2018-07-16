@@ -450,6 +450,8 @@ io.on('connection', function (socket) {
       // If the cell we just landed on has an enemy inside of it...
       if ((gameState.track[destination] & currentEnemy.number) === currentEnemy.number) {
 
+        gameState.log(currentPlayer.name + ' knocked off a token!');
+
         gameState.log(currentPlayer.name + ' landed on a token!');
 
         // Remove them.
@@ -466,7 +468,7 @@ io.on('connection', function (socket) {
     }
 
     // If we landed on a special square then we get another go.
-    if ([4, 8, 14].indexOf(destination) >= 0) {
+    if ([4, 8, 13].indexOf(destination) >= 0) {
       gameState.log(gameState.getCurrentPlayer().name + ' landed on a special square and gets another go');
 
       // Reset the dice, we don't increment the turn counter if we get another go.
@@ -492,7 +494,7 @@ io.on('connection', function (socket) {
       gameState.log('Thanks for playing!');
 
       setTimeout(() => {
-        // In one minute destroy the game.
+        // In 5 seconds destroy the game.
         delete gamesInProgress[gameState.id];
 
         // Tell the clients to remove the game from memory and the interface.

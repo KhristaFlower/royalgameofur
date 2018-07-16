@@ -52,7 +52,7 @@ body * {
 
 html {
   height: 100vh;
-  background-image: linear-gradient(to left top, #0e1d2a, #0d232e, #0c2832, #0e2e34, #123336);
+  background: #fff;
   cursor: default;
   user-select: none; }
 
@@ -75,14 +75,14 @@ html {
   display: flex;
   flex-grow: 0;
   justify-content: center;
-  color: rgba(255, 255, 255, 0.74);
+  color: rgba(0, 0, 0, 0.75);
   text-transform: capitalize;
   font-weight: bold;
   text-align: center;
   padding: .5em;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 0;
   margin-bottom: 0.5em;
-  background: rgba(255, 255, 255, 0.1); }
+  background: rgba(0, 0, 0, 0.25); }
 
 .app-container .left .players-online,
 .app-container .left .my-games {
@@ -90,8 +90,8 @@ html {
   flex-grow: 1;
   flex-direction: column;
   flex-basis: 0;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  background: rgba(255, 255, 255, 0.1);
+  border: 0;
+  background: rgba(0, 0, 0, 0.25);
   margin-bottom: 0.5em; }
 
 .app-container .left .my-games {
@@ -101,18 +101,18 @@ html {
 .app-container .left .my-games .subheading {
   display: flex;
   flex-grow: 0;
-  color: rgba(255, 255, 255, 0.74);
+  color: rgba(0, 0, 0, 0.75);
   text-transform: capitalize;
   font-weight: bold;
   text-align: center;
   padding: .5em;
   font-size: 1em;
-  background: rgba(255, 255, 255, 0.1); }
+  background: rgba(0, 0, 0, 0.25); }
 
 .players-online .player-list li {
   padding: .25em .5em;
   cursor: pointer;
-  color: rgba(255, 255, 255, 0.5); }
+  color: rgba(0, 0, 0, 0.5); }
   .players-online .player-list li:hover {
     background: rgba(255, 255, 255, 0.5); }
 
@@ -124,8 +124,13 @@ html {
   flex-direction: column;
   margin-top: .25em;
   background: rgba(255, 255, 255, 0.05);
-  color: rgba(255, 255, 255, 0.5);
-  cursor: pointer; }
+  color: rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+  position: relative; }
+  .game-list li.my-game.current-game {
+    background: rgba(0, 255, 0, 0.3); }
+  .game-list li.my-game:not(.current-game).players-turn {
+    background: rgba(255, 255, 0, 0.3); }
   .game-list li.my-game:first-child {
     margin-top: 0; }
   .game-list li.my-game .opponent {
@@ -134,19 +139,25 @@ html {
     display: flex;
     flex-direction: row;
     padding: 0 0.5em 0.5em 0.5em;
-    color: rgba(255, 255, 255, 0.25); }
+    color: rgba(0, 0, 0, 0.25); }
     .game-list li.my-game .bottom .turn {
       flex-grow: 0; }
     .game-list li.my-game .bottom .current-player {
       flex-grow: 1;
       text-align: right; }
-  .game-list li.my-game:hover {
-    background: rgba(255, 255, 0, 0.2); }
+  .game-list li.my-game:hover::after {
+    content: ' ';
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.1); }
 
 .my-games .challenge-list {
   display: flex;
   flex-direction: column;
-  color: rgba(255, 255, 255, 0.5); }
+  color: rgba(0, 0, 0, 0.5); }
   .my-games .challenge-list li {
     background: rgba(255, 255, 255, 0.05);
     padding: 0.5em;
@@ -155,7 +166,7 @@ html {
     .my-games .challenge-list li:first-child {
       margin-top: .25em; }
     .my-games .challenge-list li:hover {
-      background: rgba(255, 255, 255, 0.1); }
+      background: rgba(0, 0, 0, 0.25); }
 
 .app-container .right {
   display: flex;
@@ -180,20 +191,20 @@ html {
   display: flex;
   flex-grow: 1;
   flex-direction: column;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  background: rgba(255, 255, 255, 0.1);
+  border: 0;
+  background: rgba(0, 0, 0, 0.25);
   text-align: center;
   position: relative; }
   .game-container .stats .box:not(:first-child) {
     margin-left: 0.5em; }
   .game-container .stats .box .heading {
-    color: rgba(255, 255, 255, 0.74);
+    color: rgba(0, 0, 0, 0.75);
     font-weight: bold;
     font-size: 1em;
     padding: 0.5em 0; }
   .game-container .stats .box .content {
     padding: 0 0 0.5em 0;
-    color: rgba(255, 255, 255, 0.5); }
+    color: rgba(0, 0, 0, 0.5); }
   .game-container .stats .box.turn {
     width: 80px;
     flex-grow: 0; }
@@ -216,7 +227,8 @@ html {
       pointer-events: none; }
   .game-container .stats .box.help {
     width: 80px;
-    flex-grow: 0; }
+    flex-grow: 0;
+    cursor: pointer; }
   .game-container .stats .box.details {
     display: flex;
     flex-direction: row;
@@ -227,13 +239,13 @@ html {
       flex-grow: 1;
       flex-basis: 0; }
       .game-container .stats .box.details .player .name, .game-container .stats .box.details .enemy .name {
-        color: rgba(255, 255, 255, 0.74);
+        color: rgba(0, 0, 0, 0.75);
         font-weight: bold;
         margin-bottom: .5em; }
     .game-container .stats .box.details .vs {
       font-size: 2em;
       font-weight: bold;
-      color: rgba(255, 255, 255, 0.25);
+      color: rgba(0, 0, 0, 0.25);
       margin-bottom: .2em; }
     .game-container .stats .box.details .pieces {
       display: flex;
@@ -289,8 +301,8 @@ html {
   width: 100%;
   height: 100%;
   z-index: 2;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  background: rgba(255, 255, 255, 0.1); }
+  border: 0;
+  background: rgba(0, 0, 0, 0.25); }
 
 .game-container .bottom {
   display: flex;
@@ -306,23 +318,23 @@ html {
   flex-grow: 1;
   flex-direction: column;
   flex-basis: 0;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  background: rgba(255, 255, 255, 0.1); }
+  border: 0;
+  background: rgba(0, 0, 0, 0.25); }
 
 .game-container .bottom .events {
   margin-left: 0.5em; }
 
 .game-container .bottom .chat .heading,
 .game-container .bottom .events .heading {
-  color: rgba(255, 255, 255, 0.74);
+  color: rgba(0, 0, 0, 0.75);
   font-weight: bold;
   padding: .5em;
   font-size: 1em;
-  background: rgba(255, 255, 255, 0.1); }
+  background: rgba(0, 0, 0, 0.25); }
 
 .game-container .bottom .chat-container,
 .game-container .bottom .event-list {
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(0, 0, 0, 0.5);
   flex-grow: 1;
   overflow-y: scroll; }
 
@@ -336,9 +348,9 @@ html {
     flex-direction: column;
     padding: 0.5em; }
     .game-container .bottom .chat-container li:nth-child(even) {
-      background: rgba(255, 255, 255, 0.1); }
+      background: rgba(0, 0, 0, 0.1); }
     .game-container .bottom .chat-container li .name {
-      color: rgba(255, 255, 255, 0.25); }
+      color: rgba(0, 0, 0, 0.25); }
 
 .game-container .bottom .event-list li {
   display: flex;
@@ -346,10 +358,10 @@ html {
   align-items: center;
   padding: 0.5em; }
   .game-container .bottom .event-list li.even-turn {
-    background: rgba(255, 255, 255, 0.025); }
+    background: rgba(0, 0, 0, 0.1); }
   .game-container .bottom .event-list li .turn {
     margin-right: 1em;
-    color: rgba(255, 255, 255, 0.25);
+    color: rgba(0, 0, 0, 0.25);
     font-size: .75em; }
 
 .game-container .bottom .chat .message-box {
@@ -357,25 +369,25 @@ html {
   flex-direction: row;
   flex-grow: 1;
   flex-basis: 0;
-  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  border-top: 0;
   max-height: 2em; }
   .game-container .bottom .chat .message-box input {
     flex-grow: 1;
-    background: rgba(0, 0, 0, 0.3);
+    background: rgba(0, 0, 0, 0.2);
     border: 0;
-    color: rgba(255, 255, 255, 0.5);
+    color: rgba(0, 0, 0, 0.5);
     padding: .25em;
     font-size: 1em; }
   .game-container .bottom .chat .message-box button {
     flex-grow: 0;
-    background: rgba(0, 0, 0, 0.3);
-    color: rgba(255, 255, 255, 0.5);
+    background: rgba(0, 0, 0, 0.1);
+    color: rgba(0, 0, 0, 0.5);
     border: 0;
-    border-left: 1px solid rgba(255, 255, 255, 0.2); }
+    border-left: 0; }
 
 .overlay {
   display: flex;
-  align-items: center;
+  align-items: start;
   justify-content: center;
   position: absolute;
   left: 0;
@@ -384,6 +396,12 @@ html {
   height: 100%;
   background: rgba(0, 0, 0, 0.5);
   z-index: 10; }
+  .overlay .overlay-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 1000px;
+    height: 800px; }
   .overlay.solid {
     background: black; }
 
@@ -396,7 +414,7 @@ html {
   flex-grow: 0;
   width: 500px;
   height: 300px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 0;
   padding: 0.5em;
   color: #fff;
   background: #333; }
@@ -447,9 +465,9 @@ html {
   display: flex;
   flex-direction: column;
   width: 300px;
-  background: #333;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: rgba(255, 255, 255, 0.74);
+  background: #CCC;
+  border: 0;
+  color: rgba(0, 0, 0, 0.75);
   text-align: center; }
   .overlay .player-menu .heading {
     font-size: 1.5em;
@@ -459,10 +477,10 @@ html {
     padding: 1em;
     cursor: pointer; }
     .overlay .player-menu li:hover {
-      background: rgba(255, 255, 255, 0.1); }
+      background: rgba(0, 0, 0, 0.25); }
   .overlay .player-menu .close {
     font-size: .8em;
-    color: rgba(255, 255, 255, 0.5);
+    color: rgba(0, 0, 0, 0.5);
     padding: 1em;
     cursor: pointer; }
     .overlay .player-menu .close:hover {
@@ -473,9 +491,9 @@ html {
   flex-direction: column;
   min-width: 300px;
   max-width: 600px;
-  background: #333;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: rgba(255, 255, 255, 0.74); }
+  background: #CCC;
+  border: 0;
+  color: rgba(0, 0, 0, 0.75); }
   .overlay .container .heading {
     padding: 1em;
     font-size: 1.2em; }
@@ -487,40 +505,40 @@ html {
     .overlay .container .controls button {
       margin: .5em;
       padding: .2em .5em;
-      color: rgba(255, 255, 255, 0.5);
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: rgba(0, 0, 0, 0.5);
+      background: rgba(0, 0, 0, 0.25);
+      border: 0;
       font-size: 1em;
       cursor: pointer; }
       .overlay .container .controls button:hover {
-        background: rgba(255, 255, 255, 0.2); }
+        background: rgba(0, 0, 0, 0.2); }
 
-.board {
+div.board {
   display: flex;
   flex-direction: column;
   width: 100%;
   height: 100%; }
-  .board .row {
+  div.board .row {
     display: flex;
     flex-direction: row;
     flex-grow: 1;
     flex-basis: 0; }
-    .board .row .cell {
+    div.board .row .cell {
       display: flex;
       flex-grow: 1;
       flex-basis: 0;
       justify-content: center;
       align-items: center;
       position: relative;
-      background: rgba(255, 255, 255, 0.1);
+      background: rgba(0, 0, 0, 0.25);
       border: 2px solid rgba(255, 255, 255, 0.3); }
-      .board .row .cell[data-lane="player"] .special {
+      div.board .row .cell[data-lane="player"] .special {
         background: rgba(0, 0, 128, 0.1); }
-      .board .row .cell[data-lane="enemy"] .special {
+      div.board .row .cell[data-lane="enemy"] .special {
         background: rgba(128, 0, 0, 0.1); }
-      .board .row .cell[data-lane="middle"] .special {
+      div.board .row .cell[data-lane="middle"] .special {
         background: rgba(128, 0, 128, 0.1); }
-      .board .row .cell .special {
+      div.board .row .cell .special {
         position: absolute;
         left: 0;
         top: 0;
@@ -528,7 +546,7 @@ html {
         bottom: 0;
         z-index: 4;
         pointer-events: none; }
-      .board .row .cell.valid::before {
+      div.board .row .cell.valid::before {
         position: absolute;
         left: 0;
         top: 0;
@@ -540,7 +558,7 @@ html {
         z-index: 5;
         box-shadow: inset 0 0 40px 0 rgba(255, 255, 255, 0.2);
         cursor: pointer; }
-      .board .row .cell::after {
+      div.board .row .cell::after {
         content: attr(data-track);
         flex: 1 1 auto;
         text-align: center;
@@ -549,75 +567,75 @@ html {
         font-size: 3em;
         font-weight: bold;
         z-index: 6; }
-      .board .row .cell .token {
+      div.board .row .cell .token {
         position: absolute;
         width: 50%;
         height: 50%;
         border-radius: 50%;
         background: black; }
-        .board .row .cell .token.player {
+        div.board .row .cell .token.player {
           background: #202080; }
-        .board .row .cell .token.enemy {
+        div.board .row .cell .token.enemy {
           background: #802020; }
-      .board .row .cell[data-track="0"] {
+      div.board .row .cell[data-track="0"] {
         background: transparent; }
-      .board .row .cell[data-track="15"] {
+      div.board .row .cell[data-track="15"] {
         background: transparent; }
-      .board .row .cell[data-track="1"] {
+      div.board .row .cell[data-track="1"] {
         border-right: 2px solid rgba(0, 0, 0, 0.1); }
-      .board .row .cell[data-track="2"] {
+      div.board .row .cell[data-track="2"] {
         border-right: 2px solid rgba(0, 0, 0, 0.1); }
-      .board .row .cell[data-track="3"] {
+      div.board .row .cell[data-track="3"] {
         border-right: 2px solid rgba(0, 0, 0, 0.1); }
-      .board .row .cell[data-track="4"] {
+      div.board .row .cell[data-track="4"] {
         border-right: 2px solid rgba(0, 0, 0, 0.1); }
-      .board .row .cell[data-track="5"] {
+      div.board .row .cell[data-track="5"] {
         border-right: 2px solid rgba(0, 0, 0, 0.1); }
-      .board .row .cell[data-track="6"] {
+      div.board .row .cell[data-track="6"] {
         border-right: 2px solid rgba(0, 0, 0, 0.1); }
-      .board .row .cell[data-track="7"] {
+      div.board .row .cell[data-track="7"] {
         border-right: 2px solid rgba(0, 0, 0, 0.1); }
-      .board .row .cell[data-track="8"] {
+      div.board .row .cell[data-track="8"] {
         border-right: 2px solid rgba(0, 0, 0, 0.1); }
-      .board .row .cell[data-track="9"] {
+      div.board .row .cell[data-track="9"] {
         border-right: 2px solid rgba(0, 0, 0, 0.1); }
-      .board .row .cell[data-track="10"] {
+      div.board .row .cell[data-track="10"] {
         border-right: 2px solid rgba(0, 0, 0, 0.1); }
-      .board .row .cell[data-track="11"] {
+      div.board .row .cell[data-track="11"] {
         border-right: 2px solid rgba(0, 0, 0, 0.1); }
-      .board .row .cell[data-track="14"] {
+      div.board .row .cell[data-track="14"] {
         border-right: 2px solid rgba(0, 0, 0, 0.1); }
-      .board .row .cell[data-track="15"] {
+      div.board .row .cell[data-track="15"] {
         border-right: 2px solid rgba(0, 0, 0, 0.1); }
-      .board .row .cell[data-track="0"] {
+      div.board .row .cell[data-track="0"] {
         border-left: 2px solid rgba(0, 0, 0, 0.1); }
-      .board .row .cell[data-track="1"] {
+      div.board .row .cell[data-track="1"] {
         border-left: 2px solid rgba(0, 0, 0, 0.1); }
-      .board .row .cell[data-track="2"] {
+      div.board .row .cell[data-track="2"] {
         border-left: 2px solid rgba(0, 0, 0, 0.1); }
-      .board .row .cell[data-track="3"] {
+      div.board .row .cell[data-track="3"] {
         border-left: 2px solid rgba(0, 0, 0, 0.1); }
-      .board .row .cell[data-track="6"] {
+      div.board .row .cell[data-track="6"] {
         border-left: 2px solid rgba(0, 0, 0, 0.1); }
-      .board .row .cell[data-track="7"] {
+      div.board .row .cell[data-track="7"] {
         border-left: 2px solid rgba(0, 0, 0, 0.1); }
-      .board .row .cell[data-track="8"] {
+      div.board .row .cell[data-track="8"] {
         border-left: 2px solid rgba(0, 0, 0, 0.1); }
-      .board .row .cell[data-track="9"] {
+      div.board .row .cell[data-track="9"] {
         border-left: 2px solid rgba(0, 0, 0, 0.1); }
-      .board .row .cell[data-track="10"] {
+      div.board .row .cell[data-track="10"] {
         border-left: 2px solid rgba(0, 0, 0, 0.1); }
-      .board .row .cell[data-track="11"] {
+      div.board .row .cell[data-track="11"] {
         border-left: 2px solid rgba(0, 0, 0, 0.1); }
-      .board .row .cell[data-track="12"] {
+      div.board .row .cell[data-track="12"] {
         border-left: 2px solid rgba(0, 0, 0, 0.1); }
-      .board .row .cell[data-track="13"] {
+      div.board .row .cell[data-track="13"] {
         border-left: 2px solid rgba(0, 0, 0, 0.1); }
-      .board .row .cell[data-track="14"] {
+      div.board .row .cell[data-track="14"] {
         border-left: 2px solid rgba(0, 0, 0, 0.1); }
-      .board .row .cell[data-track="4"][data-lane="player"], .board .row .cell[data-track="13"][data-lane="player"], .board .row .cell[data-track="5"][data-lane="middle"], .board .row .cell[data-track="12"][data-lane="middle"] {
+      div.board .row .cell[data-track="4"][data-lane="player"], div.board .row .cell[data-track="13"][data-lane="player"], div.board .row .cell[data-track="5"][data-lane="middle"], div.board .row .cell[data-track="12"][data-lane="middle"] {
         border-top: 2px solid rgba(0, 0, 0, 0.1); }
-      .board .row .cell[data-track="4"][data-lane="enemy"], .board .row .cell[data-track="13"][data-lane="enemy"], .board .row .cell[data-track="5"][data-lane="middle"], .board .row .cell[data-track="12"][data-lane="middle"] {
+      div.board .row .cell[data-track="4"][data-lane="enemy"], div.board .row .cell[data-track="13"][data-lane="enemy"], div.board .row .cell[data-track="5"][data-lane="middle"], div.board .row .cell[data-track="12"][data-lane="middle"] {
         border-bottom: 2px solid rgba(0, 0, 0, 0.1); }
 
 .end-game {
@@ -633,7 +651,7 @@ html {
   .end-game .victor-name {
     font-size: 3em;
     font-weight: bold;
-    color: rgba(255, 255, 255, 0.74); }
+    color: rgba(0, 0, 0, 0.75); }
   .end-game.win .victor-name span {
     color: #0000c8; }
   .end-game.loss .victor-name span {
@@ -649,13 +667,66 @@ html {
   0%, 100% {
     background: transparent; }
   50% {
-    background: rgba(255, 255, 255, 0.1); } }
+    background: rgba(0, 0, 0, 0.25); } }
 
 *::-webkit-scrollbar {
   width: 1em; }
 
 *::-webkit-scrollbar-track {
-  -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3); }
+  background: rgba(0, 0, 0, 0.05); }
 
 *::-webkit-scrollbar-thumb {
-  background-color: rgba(255, 255, 255, 0.25); }
+  background-color: rgba(0, 0, 0, 0.25); }
+
+svg text {
+  alignment-baseline: central;
+  text-anchor: middle;
+  font-size: 3em;
+  font-weight: bold;
+  fill: rgba(0, 0, 0, 0.05);
+  font-family: Futura, Helvetica, sans-serif; }
+
+svg.cell circle.token {
+  fill: transparent; }
+
+svg.cell.player circle.token {
+  fill: #8080ff; }
+
+svg.cell.enemy circle.token {
+  fill: #ff8080; }
+
+svg.cell .background.light {
+  fill: gainsboro; }
+
+svg.cell .background.dark {
+  fill: #c8c8c8; }
+
+svg.cell .background.empty {
+  fill: white; }
+
+svg.cell:not(.valid) .valid-move {
+  opacity: 0; }
+
+svg.cell.valid circle.valid-move {
+  fill: #F8E71C; }
+
+svg.cell.valid rect.valid-move {
+  fill: rgba(255, 255, 0, 0.2); }
+
+svg.cell.valid {
+  cursor: pointer; }
+
+svg.cell.valid + svg.arrow {
+  opacity: 0; }
+
+svg.cell.valid:hover + svg.arrow {
+  opacity: 1; }
+
+.arrow {
+  pointer-events: none; }
+  .arrow.player .part {
+    fill: rgba(0, 0, 255, 0.2); }
+  .arrow.enemy .part {
+    fill: rgba(255, 0, 0, 0.2); }
+  .arrow.last .part {
+    fill: rgba(128, 128, 128, 0.2); }

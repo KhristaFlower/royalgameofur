@@ -3,6 +3,8 @@ require('./scss/ur.scss');
 const Game = require('./js/Game');
 const io = require('socket.io-client');
 
+const debugSocketEvents = false;
+
 // Create a placeholder game object.
 let currentGameState = new Game(1, 2);
 
@@ -63,7 +65,7 @@ const events = {
      * Usually sent when a client has connected without a remember token.
      */
     required: function () {
-      console.log('auth.required');
+      if (debugSocketEvents) console.log('auth.required');
       $('#authentication_overlay').css('display', 'flex');
     },
     login: {
@@ -72,7 +74,7 @@ const events = {
        * @param {{id: number, name: string, rememberToken: ?string}} payload
        */
       success: function (payload) {
-        console.log(`auth.login.success ${payload.name} (${payload.id})`);
+        if (debugSocketEvents) console.log(`auth.login.success ${payload.name} (${payload.id})`);
 
         // Clear the login form.
         $('.login-box form').trigger('reset');
@@ -84,7 +86,7 @@ const events = {
         }
         if (localStorage.getItem('local-chat-' + myPlayerId)) {
           chatLog = JSON.parse(localStorage.getItem('local-chat-' + myPlayerId));
-          console.log('loaded chatLog', chatLog);
+          if (debugSocketEvents) console.log('loaded chatLog', chatLog);
         }
         renderChat(true);
 
@@ -96,7 +98,7 @@ const events = {
        * @param {string} failureReason
        */
       failure: function (failureReason) {
-        console.log('auth.login.failure', failureReason);
+        if (debugSocketEvents) console.log('auth.login.failure', failureReason);
         showMessageBox('Authentication Failed', failureReason);
       }
     },
@@ -106,7 +108,7 @@ const events = {
        * @param {{id: number, name: string}} newUser
        */
       success: function (newUser) {
-        console.log('auth.register.success', newUser);
+        if (debugSocketEvents) console.log('auth.register.success', newUser);
 
         // Let the user know that registration worked.
         showMessageBox('Account Created', 'You may now log in.');
@@ -123,7 +125,7 @@ const events = {
        * @param {string} failureReason
        */
       failure: function (failureReason) {
-        console.log('auth.register.failure', failureReason);
+        if (debugSocketEvents) console.log('auth.register.failure', failureReason);
         showMessageBox('Registration Failed', failureReason);
       }
     },
@@ -131,7 +133,7 @@ const events = {
      * Sent when the user has requested to be logged out.
      */
     logout: () => {
-      console.log('auth.logout');
+      if (debugSocketEvents) console.log('auth.logout');
       loggedOut();
     }
   },
@@ -142,7 +144,7 @@ const events = {
        * @param {{id: number, name: string}[]} connectedUsers
        */
       set: function (connectedUsers) {
-        console.log('auth.lobby.players.set', connectedUsers);
+        if (debugSocketEvents) console.log('auth.lobby.players.set', connectedUsers);
         lobbyPlayerList = connectedUsers;
         renderPlayerList();
       },
@@ -151,7 +153,7 @@ const events = {
        * @param {{id: number, name: string}} newPlayer
        */
       join: function (newPlayer) {
-        console.log('auth.lobby.players.join', newPlayer);
+        if (debugSocketEvents) console.log('auth.lobby.players.join', newPlayer);
         // Check that the player isn't in the list already.
         // In some cases the joining player just refreshed the page and the server
         // didn't send a disconnect message but did send a join message.
@@ -170,7 +172,7 @@ const events = {
        * @param {{id: number, name: string}} player
        */
       left: function (player) {
-        console.log('auth.lobby.players.left', player);
+        if (debugSocketEvents) console.log('auth.lobby.players.left', player);
         for (let i = 0; i < lobbyPlayerList.length; i++) {
           if (lobbyPlayerList[i].id === player.id) {
             lobbyPlayerList.splice(i, 1);
@@ -186,7 +188,7 @@ const events = {
        * @param {{challengerId: number, challengerName: string, challengeId: string}} newChallenge
        */
       new: function (newChallenge) {
-        console.log('lobby.challenge.new', newChallenge);
+        if (debugSocketEvents) console.log('lobby.challenge.new', newChallenge);
         pendingChallenges.push(newChallenge);
         renderChallengeList();
       },
@@ -203,7 +205,7 @@ const events = {
        * @param challenges
        */
       set: function (challenges) {
-        console.log('lobby.challenge.set', challenges);
+        if (debugSocketEvents) console.log('lobby.challenge.set', challenges);
         pendingChallenges = challenges;
         renderChallengeList();
       }
@@ -215,7 +217,7 @@ const events = {
        * @param {lobbyGameListItem[]} gameList
        */
       set: function (gameList) {
-        console.log('lobby.games.set', gameList);
+        if (debugSocketEvents) console.log('lobby.games.set', gameList);
         lobbyGameList = gameList;
         renderLobbyGameList();
       },
@@ -224,7 +226,7 @@ const events = {
        * @param {lobbyGameListItem} gameDetails
        */
       add: function (gameDetails) {
-        console.log('lobby.games.add', gameDetails);
+        if (debugSocketEvents) console.log('lobby.games.add', gameDetails);
         lobbyGameList.push(gameDetails);
         renderLobbyGameList();
       },
@@ -233,10 +235,12 @@ const events = {
        * @param {lobbyGameListItem} gameDetails
        */
       remove: function (gameDetails) {
-        console.log('lobby.games.remove', gameDetails);
+        if (debugSocketEvents) console.log('lobby.games.remove', gameDetails);
         for (let i = 0; i < lobbyGameList.length; i++) {
           if (lobbyGameList[i].gameId === gameDetails.gameId) {
             lobbyGameList.splice(i, 1);
+            // Remove the local chat for that game.
+            delete chatLog[gameDetails.gameId];
             break;
           }
         }
@@ -248,7 +252,7 @@ const events = {
        * @param {string} otherPlayer The name of the player that was challenged.
        */
       exists: function (otherPlayer) {
-        console.log('lobby.games.exist', otherPlayer);
+        if (debugSocketEvents) console.log('lobby.games.exist', otherPlayer);
         showMessageBox('Challenge Refused', `Your challenge to ${otherPlayer} was refused because you are already playing a game with them.`);
       }
     }
@@ -259,7 +263,7 @@ const events = {
      * @param {Game} gameData
      */
     set: function (gameData) {
-      console.log('game.set', gameData);
+      if (debugSocketEvents) console.log('game.set', gameData);
       const game = new Game(1, 2);
       game.hydrate(gameData);
       currentGame = game;
@@ -275,7 +279,7 @@ const events = {
      * @param {Game} gameData
      */
     activity: function (gameData) {
-      console.log('game.activity', gameData);
+      if (debugSocketEvents) console.log('game.activity', gameData);
 
       const game = new Game(0, 0);
       game.hydrate(gameData);
@@ -421,9 +425,20 @@ socket.on('chat-add', events.chat.add);
 socket.on('chat-update', events.chat.update);
 
 let $boardTemplate;
+let $svgBoard;
+let $svgArrowHead;
+let $svgArrowCorner;
+let $svgArrowStraight;
+let $svgArrowCap;
 
 $(() => {
-  const originalBoardTemplate = '.board-container .board';
+  $svgBoard = buildBoardSvg();
+  $svgBoard.appendTo('.board-container');
+
+  // Pre-render the SVG arrow graphics.
+  preRenderSvgArrowParts();
+
+  const originalBoardTemplate = '.board-container div.board';
 
   // Store a copy of the board template, it'll be a lot easier to edit this
   // than to create a new board each time we need to change it.
@@ -531,8 +546,6 @@ function renderTitle() {
 
   let gameCount = 0;
 
-  console.log('checking for your games', lobbyGameList, myPlayerId);
-
   // Count the number of games that are pending the players input.
   for (let i = 0; i < lobbyGameList.length; i++) {
     if (lobbyGameList[i].currentPlayer.id === myPlayerId) {
@@ -548,7 +561,6 @@ function renderTitle() {
 
   title += 'The Royal Game Of Ur';
 
-  console.log('renderTitle', title);
   $('title').text(title);
 }
 
@@ -627,6 +639,14 @@ function renderLobbyGameList() {
     const whoseTurn = (game.turn.isYours ? 'Your' : 'Their');
     const $currentPlayer = $('<div class="current-player">').text(whoseTurn + ' turn');
 
+    if (game.turn.isYours) {
+      $gameItem.addClass('players-turn');
+    }
+
+    if (currentGame && game.gameId === currentGame.id) {
+      $gameItem.addClass('current-game');
+    }
+
     $gameItem.on('click', function () {
       console.log('game-select', $(this).data('gameId'));
       socket.emit('game-select', $(this).data('gameId'));
@@ -652,8 +672,142 @@ function renderGameBoard() {
   const player = currentGame.getPlayerById(myPlayerId);
   const enemy = currentGame.getPlayerById(myPlayerId === player1.pid ? player2.pid : player1.pid);
 
-  const $newBoard = $boardTemplate.clone();
+  // Clear any classes from the board that are used to render the state.
+  $('svg.cell').removeClass('valid player enemy');
+  $('svg.arrow').remove();
 
+  renderGameInformation(player, enemy);
+
+  // Update token positions on the board.
+  for (let i = 1; i <= 14; i++) {
+    const trackValue = currentGame.track[i];
+
+    if (trackValue === 0) {
+      // No tokens on this cell.
+      continue;
+    }
+
+    // Is there a player token on this spot?
+    if ((trackValue & player.number) === player.number) {
+      $('svg.cell.t-'+i+'.l-player').addClass('player');
+    }
+
+    // Is there an enemy token on this spot?
+    if ((trackValue & enemy.number) === enemy.number) {
+      $('svg.cell.t-'+i+'.l-enemy').addClass('enemy');
+    }
+  }
+
+  // Mark the valid moves on the board for the current player if they rolled already.
+  if (currentGame.currentPlayer === player.pid && currentGame.currentRoll) {
+    const validMoves = currentGame.getValidMoves();
+
+    for (let i = 0; i <= 14; i++) {
+      if (validMoves[i] === true) {
+
+        const arrowPath = Arrow.prototype.getArrowPath(i, currentGame.currentRoll, 'player');
+        const arrow = new Arrow(arrowPath);
+
+        const svgAttributes = {
+          x: (tToX(i, 'p') + arrow.offset.x) * 100,
+          y: (tToY(i, 'p') + arrow.offset.y) * 100
+        };
+
+        $('svg.cell.t-' + i + '.l-player')
+          .addClass('valid')
+          .after(arrow.svg.attr(svgAttributes).addClass('player'));
+      }
+    }
+  }
+
+  // Display the message of the game so far.
+  const $newEventList = $('<ul class="event-list">');
+  for (let i = 0; i < currentGame.messages.length; i++) {
+    const isEvenTurnNumber = currentGame.messages[i].turn % 2 === 0;
+    const $eventListItem = $('<li>').addClass(isEvenTurnNumber ? 'even-turn' : 'odd-turn');
+    const $turnNumber = $('<span class="turn">').text('T' + currentGame.messages[i].turn);
+    const $message = $('<div class="message">').text(currentGame.messages[i].message);
+    $eventListItem.append($turnNumber, $message);
+    $newEventList.prepend($eventListItem);
+  }
+  $('.events .event-list').replaceWith($newEventList);
+
+  // Update the game list on the sidebar.
+  const isPlayersTurn = currentGame.currentPlayer === myPlayerId;
+
+  for (let i = 0; i < lobbyGameList.length; i++) {
+    if (lobbyGameList[i].gameId === currentGame.id) {
+      lobbyGameList[i].turn.number = currentGame.turn;
+      lobbyGameList[i].turn.isYours = isPlayersTurn;
+      lobbyGameList[i].currentPlayer.id = currentGame.currentPlayer;
+      lobbyGameList[i].currentPlayer.name = currentGame.getCurrentPlayer().name;
+      break;
+    }
+  }
+
+  renderLobbyGameList();
+
+  // Render arrows once we have the dice roll.
+  if (currentGame.currentRoll && false) {
+    /*
+     * TODO: Move arrow rendering to just after we've rendered a valid move.
+     * This means the arrow would be a direct sibling of the valid move square
+     * and would allow us to make use of the square:hover+arrow CSS syntax to
+     * control element visibility. This method will likely mean we need to
+     * review the z-indexes of the elements on the board SVG.
+     */
+
+    const validMoves = currentGame.getValidMoves();
+    const currentPlayer = currentGame.getCurrentPlayer();
+
+    const currentPlayerSettings = {
+      lane: currentPlayer.pid === myPlayerId ? 'p' : 'e',
+      class: currentPlayer.pid === myPlayerId ? 'player' : 'enemy'
+    };
+
+    for (let i = 0; i < 15; i++) {
+      if (!validMoves[i]) {
+        continue;
+      }
+
+      const tileOffsetX = tToX(i, currentPlayerSettings.lane);
+      const tileOffsetY = tToY(i, currentPlayerSettings.lane);
+
+      const arrowMoves = Arrow.prototype.getArrowPath(t, currentGame.currentRoll, currentPlayerSettings.class);
+
+      // Create the arrow.
+      const newArrow = new Arrow(arrowMoves);
+      console.log(newArrow);
+      newArrow.svg
+        .attr({
+          x: (tileOffsetX + newArrow.offset.x) * 100,
+          y: (tileOffsetY + newArrow.offset.y) * 100
+        })
+        .addClass(currentPlayerSettings.class)
+        .appendTo($svgBoard);
+    }
+  }
+
+  // Check for a victory condition.
+  if (currentGame.state === 2) {
+    // Somebody won!
+    const winner = currentGame.player1.tokensDone === 7 ? currentGame.player1 : currentGame.player2;
+
+    const $endGameBox = $('<div class="end-game">');
+    const $victorContainer = $('<div class="victor-name">');
+    const $nameSpan = $('<span>').text(winner.name);
+    $victorContainer.append($nameSpan, ' wins!');
+    $endGameBox.addClass(winner.pid === myPlayerId ? 'win' : 'loss');
+    $endGameBox.append($victorContainer);
+
+    $('.board-container').prepend($endGameBox);
+  } else {
+    // Remove any end-game boxes.
+    $('.board-container .end-game').remove();
+  }
+}
+
+function renderGameInformation(player, enemy) {
   // Update the stats at the top of the page.
   $('.stats .turn .content').text(currentGame.turn);
   $('.stats .current-player .content').text(currentGame.getCurrentPlayer().name);
@@ -669,6 +823,14 @@ function renderGameBoard() {
   } else if (currentGame.currentPlayer === player.pid) {
     $rollContent.text('Roll!');
     $rollBox.addClass('go');
+  }
+
+  // Ensure the dice box has the right events if they're needed.
+  if (!currentGame.currentRoll) {
+    $rollBox.off('click').on('click', () => {
+      console.log('sending dice roll');
+      socket.emit('game-roll', currentGame.id);
+    });
   }
 
   // Render the remaining tokens at the top of the board.
@@ -694,121 +856,6 @@ function renderGameBoard() {
   $('.stats .details .enemy .pieces').replaceWith($enemyTokenContainer);
   $('.stats .details .player .name').text(player.name);
   $('.stats .details .enemy .name').text(enemy.name);
-
-  // Update token positions on the board.
-  for (let i = 1; i <= 14; i++) {
-    const trackValue = currentGame.track[i];
-
-    if (trackValue === 0) {
-      // No tokens on this cell.
-      continue;
-    }
-
-    if ((trackValue & player.number) === player.number) {
-      const $targetCell = $newBoard.find(cellSelector(i, 'player'));
-      const $playerToken = $('<div class="token player">');
-      $targetCell.append($playerToken);
-    }
-
-    if ((trackValue & enemy.number) === enemy.number) {
-      const $targetCell = $newBoard.find(cellSelector(i, 'enemy'));
-      const $enemyToken = $('<div class="token enemy">');
-      $targetCell.append($enemyToken);
-    }
-  }
-
-  // Mark the valid moves on the board for the current player if they rolled already.
-  if (currentGame.currentPlayer === player.pid && currentGame.currentRoll) {
-    const validMoves = currentGame.getValidMoves();
-
-    for (let i = 0; i <= 14; i++) {
-      if (validMoves[i] === true) {
-        console.log(i, 'is a valid move');
-        $newBoard.find(cellSelector(i, 'player')).addClass('valid');
-      }
-    }
-  }
-
-  // Display the message of the game so far.
-  const $newEventList = $('<ul class="event-list">');
-  for (let i = 0; i < currentGame.messages.length; i++) {
-    const isEvenTurnNumber = currentGame.messages[i].turn % 2 === 0;
-    const $eventListItem = $('<li>').addClass(isEvenTurnNumber ? 'even-turn' : 'odd-turn');
-    const $turnNumber = $('<span class="turn">').text('T' + currentGame.messages[i].turn);
-    const $message = $('<div class="message">').text(currentGame.messages[i].message);
-    $eventListItem.append($turnNumber, $message);
-    $newEventList.prepend($eventListItem);
-  }
-  $('.events .event-list').replaceWith($newEventList);
-
-  // Add the event to handle selecting the valid moves.
-  $newBoard.on('click', '.cell.valid', function () {
-    const trackId = $(this).data('track');
-    const laneName = $(this).data('lane');
-    if (currentGame.isValidMove(trackId, laneName)) {
-      // Send this move to the server, it'll be validated, so we don't need to
-      // care that much about players messing with their client.
-      // If the move isn't valid, we'll force them to reload the game state.
-      console.log(`${laneName}:${trackId} looks good to the client`);
-      socket.emit('game-move', {
-        gameId: currentGame.id,
-        track: trackId,
-        lane: laneName
-      });
-    }
-  });
-
-  // Replace the game board with the new one.
-  const $boardContainer = $('.board-container');
-  $boardContainer.find('.board').remove();
-  $boardContainer.append($newBoard);
-
-  // Update the game list on the sidebar.
-  const isPlayersTurn = currentGame.currentPlayer === myPlayerId;
-
-  for (let i = 0; i < lobbyGameList.length; i++) {
-    if (lobbyGameList[i].gameId === currentGame.id) {
-      lobbyGameList[i].turn.number = currentGame.turn;
-      lobbyGameList[i].turn.isYours = isPlayersTurn;
-      lobbyGameList[i].currentPlayer.id = currentGame.currentPlayer;
-      lobbyGameList[i].currentPlayer.name = currentGame.getCurrentPlayer().name;
-      break;
-    }
-  }
-  renderLobbyGameList();
-
-  // Ensure the dice box has the right events if they're needed.
-  if (!currentGame.currentRoll) {
-    $rollBox.off('click').on('click', () => {
-      console.log('sending dice roll');
-      socket.emit('game-roll', currentGame.id);
-    });
-  }
-
-  // Check for a victory condition.
-  if (currentGame.state === 2) {
-    // Somebody won!
-    const winner = currentGame.player1.tokensDone === 7 ? currentGame.player1 : currentGame.player2;
-
-    const $endGameBox = $('<div class="end-game">');
-    const $victorContainer = $('<div class="victor-name">');
-    const $nameSpan = $('<span>').text(winner.name);
-    $victorContainer.append($nameSpan, ' wins!');
-    $endGameBox.addClass(winner.pid === myPlayerId ? 'win' : 'loss');
-    $endGameBox.append($victorContainer);
-
-    $('.board-container').prepend($endGameBox);
-  } else {
-    // Remove any end-game boxes.
-    $('.board-container .end-game').remove();
-  }
-}
-
-function cellSelector(trackIndex, laneName) {
-  if (trackIndex >= 5 && trackIndex <= 12) {
-    laneName = 'middle';
-  }
-  return `.cell[data-lane="${laneName}"][data-track="${trackIndex}"]`;
 }
 
 function openPlayerMenu () {
@@ -817,6 +864,7 @@ function openPlayerMenu () {
 
   // Build the dialog.
   const $overlay = $('<div class="overlay player-menu-overlay">');
+  const $wrapper = $('<div class="overlay-wrapper">');
   const $playerMenu = $('<div class="player-menu">');
   const $heading = $('<div class="heading">').text(playerName);
   const $optionsMenu = $('<ul class="options">');
@@ -833,7 +881,8 @@ function openPlayerMenu () {
   }
 
   $playerMenu.append($heading, $optionsMenu, $closeButton);
-  $overlay.append($playerMenu);
+  $wrapper.append($playerMenu);
+  $overlay.append($wrapper);
 
   function hideOverlay () {
     $overlay.remove();
@@ -886,6 +935,7 @@ function stopPropagation(event) {
 function showMessageBox (title, message) {
   // Create a message box.
   const $overlay = $('<div class="overlay">');
+  const $wrapper = $('<div class="overlay-wrapper">');
 
   function dismissOverlay () {
     $overlay.remove();
@@ -900,7 +950,8 @@ function showMessageBox (title, message) {
   const $messageBox = $('<div class="container">').on('click', stopPropagation);
   $messageBox.append($title, $body, $controls);
 
-  $overlay.append($messageBox);
+  $wrapper.append($messageBox);
+  $overlay.append($wrapper);
   $overlay.on('click', dismissOverlay);
 
   // Add the overlay to the page.
@@ -1100,4 +1151,464 @@ function sendChat() {
 
   // Clear the text box.
   $chatInput.val('');
+}
+
+function buildBoardSvg() {
+
+  const $svg = $('<svg version="1.1" xmlns="http://www.w3.org/2000/svg">').attr({
+    width: '100%',
+    height: '100%',
+    viewBox: '0 0 800 300'
+  }).addClass('board');
+
+  $(svgEl('rect')).attr({
+    width: '800',
+    height: '300',
+    fill: '#ccc'
+  }).appendTo($svg);
+
+  // Create the bulk of the game board.
+  const trackInfo = getTrackInfo();
+  for (let i = trackInfo.length - 1; i >= 0; i--) {
+    // Build the SVG square to contain all the information it needs.
+    const $svgSquare = generateSvgSquare(trackInfo[i]);
+    $svgSquare.addClass('cell');
+    $svgSquare.data({
+      t: trackInfo[i].t,
+      tid: trackInfo[i].t + trackInfo[i].l.substr(0, 1)
+    }).addClass('t-' + trackInfo[i].t)
+      .addClass('l-' + trackInfo[i].l);
+
+    if (trackInfo[i].t >= 5 && trackInfo[i].t <= 12) {
+      $svgSquare.addClass('l-player').addClass('l-enemy')
+    }
+
+    $svgSquare.appendTo($svg);
+  }
+
+  // Render walls between cells.
+  const innerWalls = 'M100,200 L700,200 M100,100 L700,100 M400,100 L400,0 M600,100 L600,0 M400,300 L400,200 M600,300 L600,200';
+  const edgeWalls = 'M400,0 L0,0 L0,300 L400,300 M600,0 L800,0 L800,300 L600,300';
+
+  $(svgEl('path')).attr({
+    d: innerWalls,
+    stroke: '#979797',
+    'stroke-width': 3,
+    fill: 'none'
+  }).appendTo($svg);
+
+  $(svgEl('path')).attr({
+    d: edgeWalls,
+    stroke: '#979797',
+    'stroke-width': 5,
+    fill: 'none'
+  }).appendTo($svg);
+
+
+  return $svg;
+}
+
+function svgEl(elementName) {
+  return document.createElementNS("http://www.w3.org/2000/svg", elementName);
+}
+
+function xy(x, y) {
+  return x + ' ' + y;
+}
+
+function getPoints(x, y, size) {
+
+  let offsetX = x * size;
+  let offsetY = y * size;
+
+  if (true) {
+    const margin = 0;
+    offsetX += margin;
+    offsetY += margin;
+    size -= margin + margin;
+  }
+
+  let quarter = size / 4;
+  let half = size / 2;
+  let point = size / 10;
+
+  const points = [];
+
+  // Top left.
+  points.push(xy(offsetX, offsetY));
+
+  // Top right.
+  points.push(xy(offsetX + size, offsetY));
+
+  // Bottom right.
+  points.push(xy(offsetX + size, offsetY + size));
+
+  // Bottom left.
+  points.push(xy(offsetX, offsetY + size));
+
+  return points;
+}
+
+function tToX(t, l) {
+  if (t <= 4) {
+    return 4 - t;
+  } else if (t >= 13) {
+    return (8 - (t - 12));
+  } else {
+    return t - 5;
+  }
+}
+
+function tToY(t, l) {
+  if (t <= 4 || t >= 13) {
+    return l === 'p' ? 2 : 0;
+  } else {
+    return 1;
+  }
+}
+
+function getTrackInfo() {
+
+  const trackInfo = [];
+
+  for (let t = 0; t <= 15; t++) {
+    if (t <=4 || t >= 13) {
+      trackInfo.push({
+        t: t,
+        x: tToX(t, 'p'),
+        y: tToY(t, 'p'),
+        l: 'player'
+      });
+      trackInfo.push({
+        t: t,
+        x: tToX(t, 'e'),
+        y: tToY(t, 'e'),
+        l: 'enemy'
+      });
+    } else {
+      trackInfo.push({
+        t: t,
+        x: tToX(t),
+        y: tToY(t),
+        l: 'middle'
+      });
+    }
+  }
+
+  return trackInfo;
+}
+
+function generateSvgSquare(trackInfo) {
+
+  const xPos = trackInfo.x * 100;
+  const yPos = trackInfo.y * 100;
+
+  const $svg = $(`<svg width="100" height="100" x="${xPos}" y="${yPos}">`);
+
+  // Background of the cell.
+  const checkerColor = (trackInfo.x + trackInfo.y) % 2 === 0 ? 'dark' : 'light';
+  const backgroundColor = trackInfo.t > 0 && trackInfo.t < 15 ? checkerColor : 'empty';
+  $(svgEl('rect')).attr({
+    width: 100,
+    height: 100
+  }).addClass('background')
+    .addClass(backgroundColor)
+    .appendTo($svg);
+
+  // Render a graphic for the special squares.
+  if ([4, 8, 13].indexOf(trackInfo.t) >= 0) {
+    $(svgEl('polygon')).attr({
+      points: '50 76.0000014 39.6472382 88.6370331 36.9999993 72.5166617 21.7157288 78.2842712 27.4833383 63.0000007 11.3629669 60.3527618 23.9999986 50 11.3629669 39.6472382 27.4833383 36.9999993 21.7157288 21.7157288 36.9999993 27.4833383 39.6472382 11.3629669 50 23.9999986 60.3527618 11.3629669 63.0000007 27.4833383 78.2842712 21.7157288 72.5166617 36.9999993 88.6370331 39.6472382 76.0000014 50 88.6370331 60.3527618 72.5166617 63.0000007 78.2842712 78.2842712 63.0000007 72.5166617 60.3527618 88.6370331',
+      fill: 'rgba(0, 0, 0, .1)'
+    }).addClass('special')
+      .appendTo($svg);
+  }
+
+  // Valid Move Emphasis.
+  $(svgEl('circle')).attr({
+    cx: 50,
+    cy: 50,
+    r: 25
+  }).addClass('valid-move')
+    .appendTo($svg);
+
+  $(svgEl('rect')).attr({
+    width: 100,
+    height: 100
+  }).addClass('valid-move')
+    .appendTo($svg);
+
+  // Tokens.
+  $(svgEl('circle')).attr({
+    cx: 50,
+    cy: 50,
+    r: 22
+  }).addClass('token')
+    .appendTo($svg);
+
+  // Render the track number.
+  $(svgEl('text')).attr({
+    x: 50,
+    y: 50
+  }).text(trackInfo.t)
+    .appendTo($svg);
+
+  if (trackInfo.l !== 'enemy') {
+    // We don't need events on the enemy side.
+    $svg.on('click', function () {
+      attemptMove(trackInfo.t, trackInfo.l);
+    });
+  }
+
+  return $svg;
+}
+
+function Arrow(input) {
+
+  // The original input used to generate the arrow.
+  this.input = input;
+
+  // An array of strings 'u', 'd', 'l', 'r' describing the path of the arrow.
+  this.directions = null;
+
+  // Used to keep track of where the arrow is moving to as we generate it.
+  this.currentX = 0;
+  this.currentY = 0;
+
+  // The bounds are used to keep track of the biggest offset in each direction.
+  this.bounds = { minX: 0, maxX: 0, minY: 0, maxY: 0 };
+
+  // The arrow positioning offset.
+  this.offset = { x: 0, y: 0 };
+
+  this.size = { width: 0, height: 0 };
+
+  // An array containing details of each piece we need to render.
+  this.arrowDetails = [];
+
+  this.DIRECTION = {
+    UP: 'u',
+    DOWN: 'd',
+    LEFT: 'l',
+    RIGHT: 'r'
+  };
+
+  this.fromString(input);
+  this.render();
+}
+Arrow.prototype.fromString = function (string) {
+  this.directions = string.split('');
+
+  const directionModifiers = {
+    x: { l: -1, r: 1, u: 0, d: 0 },
+    y: { l: 0, r: 0, u: -1, d: 1 }
+  };
+
+  // Travel through the arrow path keeping track of the position of each piece.
+  // Also keep track of the bounds of the arrow, it'll be needed to determine the canvas size.
+  for (let i = 0; i < this.directions.length; i++) {
+    const direction = this.directions[i];
+
+    this.arrowDetails.push({
+      x: this.currentX,
+      y: this.currentY,
+      d: direction
+    });
+
+    this.currentX += directionModifiers.x[direction];
+    this.currentY += directionModifiers.y[direction];
+
+    if (direction === this.DIRECTION.UP) {
+      this.bounds.minY = Math.min(this.currentY, this.bounds.minY);
+    } else if (direction === this.DIRECTION.DOWN) {
+      this.bounds.maxY = Math.max(this.currentY, this.bounds.maxY);
+    } else if (direction === this.DIRECTION.LEFT) {
+      this.bounds.minX = Math.min(this.currentX, this.bounds.minX);
+    } else if (direction === this.DIRECTION.RIGHT) {
+      this.bounds.maxX = Math.max(this.currentX, this.bounds.maxX);
+    }
+  }
+
+  // Add an extra element onto the end for the rendering of the arrow head.
+  const lastDirection = this.arrowDetails[this.arrowDetails.length - 1].d;
+  this.arrowDetails.push({
+    x: this.currentX,// += directionModifiers.x[lastDirection],
+    y: this.currentY,// += directionModifiers.y[lastDirection],
+    d: lastDirection
+  });
+
+  // Find the furthest negative X and Y positions, we'll need to move our arrow based on these values.
+  this.offset = {
+    x: this.arrowDetails.reduce((carry, current) => Math.min(current.x, carry), 0),
+    y: this.arrowDetails.reduce((carry, current) => Math.min(current.y, carry), 0)
+  };
+
+  // Calculate the width and height needed to contain the arrow.
+  this.size = {
+    width: Math.abs(this.bounds.minX) + this.bounds.maxX + 1,
+    height: Math.abs(this.bounds.minY) + this.bounds.maxY + 1
+  };
+
+  // Apply the calculated offset to each piece.
+  for (let i = 0; i < this.arrowDetails.length; i++) {
+    this.arrowDetails[i].x -= this.offset.x;
+    this.arrowDetails[i].y -= this.offset.y;
+  }
+
+  this.pieceDetails.cap.svg = $svgArrowCap;
+  this.pieceDetails.straight.svg = $svgArrowStraight;
+  this.pieceDetails.corner.svg = $svgArrowCorner;
+  this.pieceDetails.head.svg = $svgArrowHead;
+};
+Arrow.prototype.pieceDetails = {
+  cap: {
+    rotationMap: {
+      l: 0, u: 1, r: 2, d: 3
+    },
+    svg: $svgArrowCorner
+  },
+  straight: {
+    rotationMap: {
+      l: 0, u: 1, r: 0, d: 1
+    },
+    svg: $svgArrowStraight
+  },
+  corner: {
+    rotationMap: {
+      // The corner rotation map includes the directions we are coming from and going in.
+      // For example lu is from left going up.
+      lu: 0, ld: 1,
+      ur: 1, ul: 2,
+      rd: 2, ru: 3,
+      dr: 0, dl: 3
+    },
+    svg: $svgArrowCorner
+  },
+  head: {
+    rotationMap: {
+      l: 3, u: 0, r: 1, d: 2
+    },
+    svg: $svgArrowHead
+  }
+};
+Arrow.prototype.trackDirections = {
+  player: 'llllurrrrrrrdll',
+  enemy: 'lllldrrrrrrrull'
+};
+Arrow.prototype.getArrowPath = function (t, moves, track) {
+  return this.trackDirections[track].substr(t, moves);
+};
+Arrow.prototype.render = function () {
+  const $svg = $('<svg version="1.1" xmlns="http://www.w3.org/2000/svg" class="arrow">').attr({
+    width: this.size.width * 100,
+    height: this.size.height * 100
+  });
+
+  for (let i = 0; i < this.arrowDetails.length; i++) {
+
+    const thisDirection = this.arrowDetails[i].d;
+    const lastDirection = (i === 0 ? thisDirection : this.arrowDetails[i - 1].d);
+
+    let pieceType;
+
+    if (i === 0) {
+      // Cap piece.
+      pieceType = 'cap';
+    } else if (i === this.arrowDetails.length - 1) {
+      // Arrow head.
+      pieceType = 'head';
+    } else if (thisDirection === lastDirection) {
+      // Straight piece.
+      pieceType = 'straight';
+    } else {
+      // Corner piece.
+      pieceType = 'corner';
+    }
+
+    const partDetails = this.pieceDetails[pieceType];
+
+    // Determine the required rotation for the piece.
+    let rotationKey;
+    if (pieceType === 'corner') {
+      rotationKey = lastDirection + thisDirection;
+    } else {
+      rotationKey = thisDirection;
+    }
+
+    const rotation = (partDetails.rotationMap[rotationKey] || 0) * 90;
+
+    // Apply the settings need to position the piece properly.
+    const attributes = {
+      position: {
+        x: this.arrowDetails[i].x * 100,
+        y: this.arrowDetails[i].y * 100
+      },
+      rotation: {
+        transform: `rotate(${rotation} 50 50)`
+      }
+    };
+
+    const $partClone = partDetails.svg.clone();
+    $partClone.find('.part').attr(attributes.rotation);
+    $partClone.attr(attributes.position).appendTo($svg);
+  }
+
+  this.svg = $svg;
+};
+
+function preRenderSvgArrowParts() {
+
+  const $svgTemplate = $('<svg version="1.1">').attr({
+    width: 100,
+    height: 100,
+    viewBox: '0 0 100 100'
+  });
+
+  // Render the arrow head.
+  $svgArrowHead = $svgTemplate.clone().addClass('head');
+  $(svgEl('path')).attr({
+    d: 'M38,95 L26,95 L50,71 L74,95 L62,95 L62,100 L38,100 L38,95 Z'
+  }).addClass('part')
+    .appendTo($svgArrowHead);
+
+  // Render the arrow corner.
+  $svgArrowCorner = $svgTemplate.clone().addClass('corner');
+  $(svgEl('path')).attr({
+    d: 'M85,38 L100,38 L100,62 L85,62 C59.3697972,62 38.5312452,41.0480046 38.0099971,15 L38,15 L38,0 L62,0 L62,15 C62,27.7025492 71.8497355,38 84,38 C84.3351364,38 84.6685225,37.9921657 85,37.9766627 L85,38 Z'
+  }).addClass('part')
+    .appendTo($svgArrowCorner);
+
+  // Render the arrow straight.
+  $svgArrowStraight = $svgTemplate.clone().addClass('straight');
+  $(svgEl('rect')).attr({
+    x: 0,
+    y: 38,
+    width: 100,
+    height: 24
+  }).addClass('part')
+    .appendTo($svgArrowStraight);
+
+  // Render the arrow cap.
+  $svgArrowCap = $svgTemplate.clone().addClass('cap');
+  $(svgEl('rect')).attr({
+    x: 0,
+    y: 38,
+    width: 50,
+    height: 24
+  }).addClass('part')
+    .appendTo($svgArrowCap);
+
+}
+
+function attemptMove(trackId, laneName) {
+  if (!currentGame || !currentGame.isValidMove(trackId, laneName)) {
+    return;
+  }
+
+  console.log(`${laneName}:${trackId} looks good to the client`);
+  socket.emit('game-move', {
+    gameId: currentGame.id,
+    track: trackId,
+    lane: laneName
+  });
 }

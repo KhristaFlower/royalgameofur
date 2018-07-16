@@ -3241,15 +3241,15 @@ Emitter.prototype.hasListeners = function(event){
  * Module dependencies.
  */
 
-var keys = __webpack_require__(146);
+var keys = __webpack_require__(145);
 var hasBinary = __webpack_require__(82);
-var sliceBuffer = __webpack_require__(151);
-var after = __webpack_require__(152);
-var utf8 = __webpack_require__(153);
+var sliceBuffer = __webpack_require__(150);
+var after = __webpack_require__(151);
+var utf8 = __webpack_require__(152);
 
 var base64encoder;
 if (global && global.ArrayBuffer) {
-  base64encoder = __webpack_require__(155);
+  base64encoder = __webpack_require__(154);
 }
 
 /**
@@ -3307,7 +3307,7 @@ var err = { type: 'error', data: 'parser error' };
  * Create a blob api even for blob builder when vendor prefixes exist
  */
 
-var Blob = __webpack_require__(156);
+var Blob = __webpack_require__(155);
 
 /**
  * Encodes a packet.
@@ -4921,7 +4921,7 @@ return jQuery;
  * Expose `debug()` as the module.
  */
 
-exports = module.exports = __webpack_require__(136);
+exports = module.exports = __webpack_require__(135);
 exports.log = log;
 exports.formatArgs = formatArgs;
 exports.save = save;
@@ -5178,7 +5178,7 @@ module.exports = function(a, b){
  * Expose `debug()` as the module.
  */
 
-exports = module.exports = __webpack_require__(157);
+exports = module.exports = __webpack_require__(156);
 exports.log = log;
 exports.formatArgs = formatArgs;
 exports.save = save;
@@ -7171,9 +7171,9 @@ process.umask = function() { return 0; };
  * Module dependencies.
  */
 
-var debug = __webpack_require__(138)('socket.io-parser');
+var debug = __webpack_require__(137)('socket.io-parser');
 var Emitter = __webpack_require__(16);
-var binary = __webpack_require__(141);
+var binary = __webpack_require__(140);
 var isArray = __webpack_require__(46);
 var isBuf = __webpack_require__(78);
 
@@ -7602,7 +7602,7 @@ module.exports = Array.isArray || function (arr) {
 
 /* WEBPACK VAR INJECTION */(function(global) {// browser shim for xmlhttprequest module
 
-var hasCORS = __webpack_require__(144);
+var hasCORS = __webpack_require__(143);
 
 module.exports = function (opts) {
   var xdomain = opts.xdomain;
@@ -9237,7 +9237,7 @@ function isBuf(obj) {
  * Module dependencies.
  */
 
-var eio = __webpack_require__(142);
+var eio = __webpack_require__(141);
 var Socket = __webpack_require__(85);
 var Emitter = __webpack_require__(16);
 var parser = __webpack_require__(45);
@@ -9245,7 +9245,7 @@ var on = __webpack_require__(86);
 var bind = __webpack_require__(87);
 var debug = __webpack_require__(25)('socket.io-client:manager');
 var indexOf = __webpack_require__(84);
-var Backoff = __webpack_require__(163);
+var Backoff = __webpack_require__(162);
 
 /**
  * IE6+ hasOwnProperty
@@ -9816,9 +9816,9 @@ Manager.prototype.onreconnect = function () {
  */
 
 var XMLHttpRequest = __webpack_require__(47);
-var XHR = __webpack_require__(145);
-var JSONP = __webpack_require__(159);
-var websocket = __webpack_require__(160);
+var XHR = __webpack_require__(144);
+var JSONP = __webpack_require__(158);
+var websocket = __webpack_require__(159);
 
 /**
  * Export transports.
@@ -10187,7 +10187,7 @@ function hasBinary (obj) {
   return false;
 }
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(147).Buffer))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(146).Buffer))
 
 /***/ }),
 /* 83 */
@@ -10290,7 +10290,7 @@ module.exports = function(arr, obj){
 
 var parser = __webpack_require__(45);
 var Emitter = __webpack_require__(16);
-var toArray = __webpack_require__(162);
+var toArray = __webpack_require__(161);
 var on = __webpack_require__(86);
 var bind = __webpack_require__(87);
 var debug = __webpack_require__(25)('socket.io-client:socket');
@@ -10799,7 +10799,9 @@ module.exports = __webpack_require__(89);
 __webpack_require__(90);
 __webpack_require__(130);
 var Game = __webpack_require__(131);
-var io = __webpack_require__(134);
+var io = __webpack_require__(133);
+
+var debugSocketEvents = false;
 
 // Create a placeholder game object.
 var currentGameState = new Game(1, 2);
@@ -10861,7 +10863,7 @@ var events = {
      * Usually sent when a client has connected without a remember token.
      */
     required: function required() {
-      console.log('auth.required');
+      if (debugSocketEvents) console.log('auth.required');
       $('#authentication_overlay').css('display', 'flex');
     },
     login: {
@@ -10870,7 +10872,7 @@ var events = {
        * @param {{id: number, name: string, rememberToken: ?string}} payload
        */
       success: function success(payload) {
-        console.log('auth.login.success ' + payload.name + ' (' + payload.id + ')');
+        if (debugSocketEvents) console.log('auth.login.success ' + payload.name + ' (' + payload.id + ')');
 
         // Clear the login form.
         $('.login-box form').trigger('reset');
@@ -10882,7 +10884,7 @@ var events = {
         }
         if (localStorage.getItem('local-chat-' + myPlayerId)) {
           chatLog = JSON.parse(localStorage.getItem('local-chat-' + myPlayerId));
-          console.log('loaded chatLog', chatLog);
+          if (debugSocketEvents) console.log('loaded chatLog', chatLog);
         }
         renderChat(true);
 
@@ -10894,7 +10896,7 @@ var events = {
        * @param {string} failureReason
        */
       failure: function failure(failureReason) {
-        console.log('auth.login.failure', failureReason);
+        if (debugSocketEvents) console.log('auth.login.failure', failureReason);
         showMessageBox('Authentication Failed', failureReason);
       }
     },
@@ -10904,7 +10906,7 @@ var events = {
        * @param {{id: number, name: string}} newUser
        */
       success: function success(newUser) {
-        console.log('auth.register.success', newUser);
+        if (debugSocketEvents) console.log('auth.register.success', newUser);
 
         // Let the user know that registration worked.
         showMessageBox('Account Created', 'You may now log in.');
@@ -10921,7 +10923,7 @@ var events = {
        * @param {string} failureReason
        */
       failure: function failure(failureReason) {
-        console.log('auth.register.failure', failureReason);
+        if (debugSocketEvents) console.log('auth.register.failure', failureReason);
         showMessageBox('Registration Failed', failureReason);
       }
     },
@@ -10929,7 +10931,7 @@ var events = {
      * Sent when the user has requested to be logged out.
      */
     logout: function logout() {
-      console.log('auth.logout');
+      if (debugSocketEvents) console.log('auth.logout');
       loggedOut();
     }
   },
@@ -10940,7 +10942,7 @@ var events = {
        * @param {{id: number, name: string}[]} connectedUsers
        */
       set: function set(connectedUsers) {
-        console.log('auth.lobby.players.set', connectedUsers);
+        if (debugSocketEvents) console.log('auth.lobby.players.set', connectedUsers);
         lobbyPlayerList = connectedUsers;
         renderPlayerList();
       },
@@ -10949,7 +10951,7 @@ var events = {
        * @param {{id: number, name: string}} newPlayer
        */
       join: function join(newPlayer) {
-        console.log('auth.lobby.players.join', newPlayer);
+        if (debugSocketEvents) console.log('auth.lobby.players.join', newPlayer);
         // Check that the player isn't in the list already.
         // In some cases the joining player just refreshed the page and the server
         // didn't send a disconnect message but did send a join message.
@@ -10968,7 +10970,7 @@ var events = {
        * @param {{id: number, name: string}} player
        */
       left: function left(player) {
-        console.log('auth.lobby.players.left', player);
+        if (debugSocketEvents) console.log('auth.lobby.players.left', player);
         for (var i = 0; i < lobbyPlayerList.length; i++) {
           if (lobbyPlayerList[i].id === player.id) {
             lobbyPlayerList.splice(i, 1);
@@ -10984,7 +10986,7 @@ var events = {
        * @param {{challengerId: number, challengerName: string, challengeId: string}} newChallenge
        */
       new: function _new(newChallenge) {
-        console.log('lobby.challenge.new', newChallenge);
+        if (debugSocketEvents) console.log('lobby.challenge.new', newChallenge);
         pendingChallenges.push(newChallenge);
         renderChallengeList();
       },
@@ -11001,7 +11003,7 @@ var events = {
        * @param challenges
        */
       set: function set(challenges) {
-        console.log('lobby.challenge.set', challenges);
+        if (debugSocketEvents) console.log('lobby.challenge.set', challenges);
         pendingChallenges = challenges;
         renderChallengeList();
       }
@@ -11013,7 +11015,7 @@ var events = {
        * @param {lobbyGameListItem[]} gameList
        */
       set: function set(gameList) {
-        console.log('lobby.games.set', gameList);
+        if (debugSocketEvents) console.log('lobby.games.set', gameList);
         lobbyGameList = gameList;
         renderLobbyGameList();
       },
@@ -11022,7 +11024,7 @@ var events = {
        * @param {lobbyGameListItem} gameDetails
        */
       add: function add(gameDetails) {
-        console.log('lobby.games.add', gameDetails);
+        if (debugSocketEvents) console.log('lobby.games.add', gameDetails);
         lobbyGameList.push(gameDetails);
         renderLobbyGameList();
       },
@@ -11031,10 +11033,12 @@ var events = {
        * @param {lobbyGameListItem} gameDetails
        */
       remove: function remove(gameDetails) {
-        console.log('lobby.games.remove', gameDetails);
+        if (debugSocketEvents) console.log('lobby.games.remove', gameDetails);
         for (var i = 0; i < lobbyGameList.length; i++) {
           if (lobbyGameList[i].gameId === gameDetails.gameId) {
             lobbyGameList.splice(i, 1);
+            // Remove the local chat for that game.
+            delete chatLog[gameDetails.gameId];
             break;
           }
         }
@@ -11046,7 +11050,7 @@ var events = {
        * @param {string} otherPlayer The name of the player that was challenged.
        */
       exists: function exists(otherPlayer) {
-        console.log('lobby.games.exist', otherPlayer);
+        if (debugSocketEvents) console.log('lobby.games.exist', otherPlayer);
         showMessageBox('Challenge Refused', 'Your challenge to ' + otherPlayer + ' was refused because you are already playing a game with them.');
       }
     }
@@ -11057,7 +11061,7 @@ var events = {
      * @param {Game} gameData
      */
     set: function set(gameData) {
-      console.log('game.set', gameData);
+      if (debugSocketEvents) console.log('game.set', gameData);
       var game = new Game(1, 2);
       game.hydrate(gameData);
       currentGame = game;
@@ -11073,7 +11077,7 @@ var events = {
      * @param {Game} gameData
      */
     activity: function activity(gameData) {
-      console.log('game.activity', gameData);
+      if (debugSocketEvents) console.log('game.activity', gameData);
 
       var game = new Game(0, 0);
       game.hydrate(gameData);
@@ -11219,9 +11223,20 @@ socket.on('chat-add', events.chat.add);
 socket.on('chat-update', events.chat.update);
 
 var $boardTemplate = void 0;
+var $svgBoard = void 0;
+var $svgArrowHead = void 0;
+var $svgArrowCorner = void 0;
+var $svgArrowStraight = void 0;
+var $svgArrowCap = void 0;
 
 $(function () {
-  var originalBoardTemplate = '.board-container .board';
+  $svgBoard = buildBoardSvg();
+  $svgBoard.appendTo('.board-container');
+
+  // Pre-render the SVG arrow graphics.
+  preRenderSvgArrowParts();
+
+  var originalBoardTemplate = '.board-container div.board';
 
   // Store a copy of the board template, it'll be a lot easier to edit this
   // than to create a new board each time we need to change it.
@@ -11305,8 +11320,6 @@ function renderTitle() {
 
   var gameCount = 0;
 
-  console.log('checking for your games', lobbyGameList, myPlayerId);
-
   // Count the number of games that are pending the players input.
   for (var i = 0; i < lobbyGameList.length; i++) {
     if (lobbyGameList[i].currentPlayer.id === myPlayerId) {
@@ -11322,7 +11335,6 @@ function renderTitle() {
 
   title += 'The Royal Game Of Ur';
 
-  console.log('renderTitle', title);
   $('title').text(title);
 }
 
@@ -11400,6 +11412,14 @@ function renderLobbyGameList() {
     var whoseTurn = game.turn.isYours ? 'Your' : 'Their';
     var $currentPlayer = $('<div class="current-player">').text(whoseTurn + ' turn');
 
+    if (game.turn.isYours) {
+      $gameItem.addClass('players-turn');
+    }
+
+    if (currentGame && game.gameId === currentGame.id) {
+      $gameItem.addClass('current-game');
+    }
+
     $gameItem.on('click', function () {
       console.log('game-select', $(this).data('gameId'));
       socket.emit('game-select', $(this).data('gameId'));
@@ -11425,8 +11445,137 @@ function renderGameBoard() {
   var player = currentGame.getPlayerById(myPlayerId);
   var enemy = currentGame.getPlayerById(myPlayerId === player1.pid ? player2.pid : player1.pid);
 
-  var $newBoard = $boardTemplate.clone();
+  // Clear any classes from the board that are used to render the state.
+  $('svg.cell').removeClass('valid player enemy');
+  $('svg.arrow').remove();
 
+  renderGameInformation(player, enemy);
+
+  // Update token positions on the board.
+  for (var i = 1; i <= 14; i++) {
+    var trackValue = currentGame.track[i];
+
+    if (trackValue === 0) {
+      // No tokens on this cell.
+      continue;
+    }
+
+    // Is there a player token on this spot?
+    if ((trackValue & player.number) === player.number) {
+      $('svg.cell.t-' + i + '.l-player').addClass('player');
+    }
+
+    // Is there an enemy token on this spot?
+    if ((trackValue & enemy.number) === enemy.number) {
+      $('svg.cell.t-' + i + '.l-enemy').addClass('enemy');
+    }
+  }
+
+  // Mark the valid moves on the board for the current player if they rolled already.
+  if (currentGame.currentPlayer === player.pid && currentGame.currentRoll) {
+    var validMoves = currentGame.getValidMoves();
+
+    for (var _i = 0; _i <= 14; _i++) {
+      if (validMoves[_i] === true) {
+
+        var arrowPath = Arrow.prototype.getArrowPath(_i, currentGame.currentRoll, 'player');
+        var arrow = new Arrow(arrowPath);
+
+        var svgAttributes = {
+          x: (tToX(_i, 'p') + arrow.offset.x) * 100,
+          y: (tToY(_i, 'p') + arrow.offset.y) * 100
+        };
+
+        $('svg.cell.t-' + _i + '.l-player').addClass('valid').after(arrow.svg.attr(svgAttributes).addClass('player'));
+      }
+    }
+  }
+
+  // Display the message of the game so far.
+  var $newEventList = $('<ul class="event-list">');
+  for (var _i2 = 0; _i2 < currentGame.messages.length; _i2++) {
+    var isEvenTurnNumber = currentGame.messages[_i2].turn % 2 === 0;
+    var $eventListItem = $('<li>').addClass(isEvenTurnNumber ? 'even-turn' : 'odd-turn');
+    var $turnNumber = $('<span class="turn">').text('T' + currentGame.messages[_i2].turn);
+    var $message = $('<div class="message">').text(currentGame.messages[_i2].message);
+    $eventListItem.append($turnNumber, $message);
+    $newEventList.prepend($eventListItem);
+  }
+  $('.events .event-list').replaceWith($newEventList);
+
+  // Update the game list on the sidebar.
+  var isPlayersTurn = currentGame.currentPlayer === myPlayerId;
+
+  for (var _i3 = 0; _i3 < lobbyGameList.length; _i3++) {
+    if (lobbyGameList[_i3].gameId === currentGame.id) {
+      lobbyGameList[_i3].turn.number = currentGame.turn;
+      lobbyGameList[_i3].turn.isYours = isPlayersTurn;
+      lobbyGameList[_i3].currentPlayer.id = currentGame.currentPlayer;
+      lobbyGameList[_i3].currentPlayer.name = currentGame.getCurrentPlayer().name;
+      break;
+    }
+  }
+
+  renderLobbyGameList();
+
+  // Render arrows once we have the dice roll.
+  if (currentGame.currentRoll && false) {
+    /*
+     * TODO: Move arrow rendering to just after we've rendered a valid move.
+     * This means the arrow would be a direct sibling of the valid move square
+     * and would allow us to make use of the square:hover+arrow CSS syntax to
+     * control element visibility. This method will likely mean we need to
+     * review the z-indexes of the elements on the board SVG.
+     */
+
+    var _validMoves = currentGame.getValidMoves();
+    var currentPlayer = currentGame.getCurrentPlayer();
+
+    var currentPlayerSettings = {
+      lane: currentPlayer.pid === myPlayerId ? 'p' : 'e',
+      class: currentPlayer.pid === myPlayerId ? 'player' : 'enemy'
+    };
+
+    for (var _i4 = 0; _i4 < 15; _i4++) {
+      if (!_validMoves[_i4]) {
+        continue;
+      }
+
+      var tileOffsetX = tToX(_i4, currentPlayerSettings.lane);
+      var tileOffsetY = tToY(_i4, currentPlayerSettings.lane);
+
+      var arrowMoves = Arrow.prototype.getArrowPath(t, currentGame.currentRoll, currentPlayerSettings.class);
+
+      // Create the arrow.
+      var newArrow = new Arrow(arrowMoves);
+      console.log(newArrow);
+      newArrow.svg.attr({
+        x: (tileOffsetX + newArrow.offset.x) * 100,
+        y: (tileOffsetY + newArrow.offset.y) * 100
+      }).addClass(currentPlayerSettings.class).appendTo($svgBoard);
+    }
+  }
+
+  // Check for a victory condition.
+  if (currentGame.state === 2) {
+    // Somebody won!
+    var winner = currentGame.player1.tokensDone === 7 ? currentGame.player1 : currentGame.player2;
+
+    var $endGameBox = $('<div class="end-game">');
+    var $victorContainer = $('<div class="victor-name">');
+    var $nameSpan = $('<span>').text(winner.name);
+    $victorContainer.append($nameSpan, ' wins!');
+    $endGameBox.addClass(winner.pid === myPlayerId ? 'win' : 'loss');
+    $endGameBox.append($victorContainer);
+
+    $('.board-container').prepend($endGameBox);
+  } else {
+    // Remove any end-game boxes.
+    $('.board-container .end-game').remove();
+  }
+}
+
+function renderGameInformation(player, enemy) {
   // Update the stats at the top of the page.
   $('.stats .turn .content').text(currentGame.turn);
   $('.stats .current-player .content').text(currentGame.getCurrentPlayer().name);
@@ -11442,6 +11591,14 @@ function renderGameBoard() {
   } else if (currentGame.currentPlayer === player.pid) {
     $rollContent.text('Roll!');
     $rollBox.addClass('go');
+  }
+
+  // Ensure the dice box has the right events if they're needed.
+  if (!currentGame.currentRoll) {
+    $rollBox.off('click').on('click', function () {
+      console.log('sending dice roll');
+      socket.emit('game-roll', currentGame.id);
+    });
   }
 
   // Render the remaining tokens at the top of the board.
@@ -11467,121 +11624,6 @@ function renderGameBoard() {
   $('.stats .details .enemy .pieces').replaceWith($enemyTokenContainer);
   $('.stats .details .player .name').text(player.name);
   $('.stats .details .enemy .name').text(enemy.name);
-
-  // Update token positions on the board.
-  for (var _i = 1; _i <= 14; _i++) {
-    var trackValue = currentGame.track[_i];
-
-    if (trackValue === 0) {
-      // No tokens on this cell.
-      continue;
-    }
-
-    if ((trackValue & player.number) === player.number) {
-      var $targetCell = $newBoard.find(cellSelector(_i, 'player'));
-      var _$playerToken = $('<div class="token player">');
-      $targetCell.append(_$playerToken);
-    }
-
-    if ((trackValue & enemy.number) === enemy.number) {
-      var _$targetCell = $newBoard.find(cellSelector(_i, 'enemy'));
-      var _$enemyToken = $('<div class="token enemy">');
-      _$targetCell.append(_$enemyToken);
-    }
-  }
-
-  // Mark the valid moves on the board for the current player if they rolled already.
-  if (currentGame.currentPlayer === player.pid && currentGame.currentRoll) {
-    var validMoves = currentGame.getValidMoves();
-
-    for (var _i2 = 0; _i2 <= 14; _i2++) {
-      if (validMoves[_i2] === true) {
-        console.log(_i2, 'is a valid move');
-        $newBoard.find(cellSelector(_i2, 'player')).addClass('valid');
-      }
-    }
-  }
-
-  // Display the message of the game so far.
-  var $newEventList = $('<ul class="event-list">');
-  for (var _i3 = 0; _i3 < currentGame.messages.length; _i3++) {
-    var isEvenTurnNumber = currentGame.messages[_i3].turn % 2 === 0;
-    var $eventListItem = $('<li>').addClass(isEvenTurnNumber ? 'even-turn' : 'odd-turn');
-    var $turnNumber = $('<span class="turn">').text('T' + currentGame.messages[_i3].turn);
-    var $message = $('<div class="message">').text(currentGame.messages[_i3].message);
-    $eventListItem.append($turnNumber, $message);
-    $newEventList.prepend($eventListItem);
-  }
-  $('.events .event-list').replaceWith($newEventList);
-
-  // Add the event to handle selecting the valid moves.
-  $newBoard.on('click', '.cell.valid', function () {
-    var trackId = $(this).data('track');
-    var laneName = $(this).data('lane');
-    if (currentGame.isValidMove(trackId, laneName)) {
-      // Send this move to the server, it'll be validated, so we don't need to
-      // care that much about players messing with their client.
-      // If the move isn't valid, we'll force them to reload the game state.
-      console.log(laneName + ':' + trackId + ' looks good to the client');
-      socket.emit('game-move', {
-        gameId: currentGame.id,
-        track: trackId,
-        lane: laneName
-      });
-    }
-  });
-
-  // Replace the game board with the new one.
-  var $boardContainer = $('.board-container');
-  $boardContainer.find('.board').remove();
-  $boardContainer.append($newBoard);
-
-  // Update the game list on the sidebar.
-  var isPlayersTurn = currentGame.currentPlayer === myPlayerId;
-
-  for (var _i4 = 0; _i4 < lobbyGameList.length; _i4++) {
-    if (lobbyGameList[_i4].gameId === currentGame.id) {
-      lobbyGameList[_i4].turn.number = currentGame.turn;
-      lobbyGameList[_i4].turn.isYours = isPlayersTurn;
-      lobbyGameList[_i4].currentPlayer.id = currentGame.currentPlayer;
-      lobbyGameList[_i4].currentPlayer.name = currentGame.getCurrentPlayer().name;
-      break;
-    }
-  }
-  renderLobbyGameList();
-
-  // Ensure the dice box has the right events if they're needed.
-  if (!currentGame.currentRoll) {
-    $rollBox.off('click').on('click', function () {
-      console.log('sending dice roll');
-      socket.emit('game-roll', currentGame.id);
-    });
-  }
-
-  // Check for a victory condition.
-  if (currentGame.state === 2) {
-    // Somebody won!
-    var winner = currentGame.player1.tokensDone === 7 ? currentGame.player1 : currentGame.player2;
-
-    var $endGameBox = $('<div class="end-game">');
-    var $victorContainer = $('<div class="victor-name">');
-    var $nameSpan = $('<span>').text(winner.name);
-    $victorContainer.append($nameSpan, ' wins!');
-    $endGameBox.addClass(winner.pid === myPlayerId ? 'win' : 'loss');
-    $endGameBox.append($victorContainer);
-
-    $('.board-container').prepend($endGameBox);
-  } else {
-    // Remove any end-game boxes.
-    $('.board-container .end-game').remove();
-  }
-}
-
-function cellSelector(trackIndex, laneName) {
-  if (trackIndex >= 5 && trackIndex <= 12) {
-    laneName = 'middle';
-  }
-  return '.cell[data-lane="' + laneName + '"][data-track="' + trackIndex + '"]';
 }
 
 function openPlayerMenu() {
@@ -11590,6 +11632,7 @@ function openPlayerMenu() {
 
   // Build the dialog.
   var $overlay = $('<div class="overlay player-menu-overlay">');
+  var $wrapper = $('<div class="overlay-wrapper">');
   var $playerMenu = $('<div class="player-menu">');
   var $heading = $('<div class="heading">').text(playerName);
   var $optionsMenu = $('<ul class="options">');
@@ -11606,7 +11649,8 @@ function openPlayerMenu() {
   }
 
   $playerMenu.append($heading, $optionsMenu, $closeButton);
-  $overlay.append($playerMenu);
+  $wrapper.append($playerMenu);
+  $overlay.append($wrapper);
 
   function hideOverlay() {
     $overlay.remove();
@@ -11655,6 +11699,7 @@ function stopPropagation(event) {
 function showMessageBox(title, message) {
   // Create a message box.
   var $overlay = $('<div class="overlay">');
+  var $wrapper = $('<div class="overlay-wrapper">');
 
   function dismissOverlay() {
     $overlay.remove();
@@ -11669,7 +11714,8 @@ function showMessageBox(title, message) {
   var $messageBox = $('<div class="container">').on('click', stopPropagation);
   $messageBox.append($title, $body, $controls);
 
-  $overlay.append($messageBox);
+  $wrapper.append($messageBox);
+  $overlay.append($wrapper);
   $overlay.on('click', dismissOverlay);
 
   // Add the overlay to the page.
@@ -11869,6 +11915,456 @@ function sendChat() {
 
   // Clear the text box.
   $chatInput.val('');
+}
+
+function buildBoardSvg() {
+
+  var $svg = $('<svg version="1.1" xmlns="http://www.w3.org/2000/svg">').attr({
+    width: '100%',
+    height: '100%',
+    viewBox: '0 0 800 300'
+  }).addClass('board');
+
+  $(svgEl('rect')).attr({
+    width: '800',
+    height: '300',
+    fill: '#ccc'
+  }).appendTo($svg);
+
+  // Create the bulk of the game board.
+  var trackInfo = getTrackInfo();
+  for (var i = trackInfo.length - 1; i >= 0; i--) {
+    // Build the SVG square to contain all the information it needs.
+    var $svgSquare = generateSvgSquare(trackInfo[i]);
+    $svgSquare.addClass('cell');
+    $svgSquare.data({
+      t: trackInfo[i].t,
+      tid: trackInfo[i].t + trackInfo[i].l.substr(0, 1)
+    }).addClass('t-' + trackInfo[i].t).addClass('l-' + trackInfo[i].l);
+
+    if (trackInfo[i].t >= 5 && trackInfo[i].t <= 12) {
+      $svgSquare.addClass('l-player').addClass('l-enemy');
+    }
+
+    $svgSquare.appendTo($svg);
+  }
+
+  // Render walls between cells.
+  var innerWalls = 'M100,200 L700,200 M100,100 L700,100 M400,100 L400,0 M600,100 L600,0 M400,300 L400,200 M600,300 L600,200';
+  var edgeWalls = 'M400,0 L0,0 L0,300 L400,300 M600,0 L800,0 L800,300 L600,300';
+
+  $(svgEl('path')).attr({
+    d: innerWalls,
+    stroke: '#979797',
+    'stroke-width': 3,
+    fill: 'none'
+  }).appendTo($svg);
+
+  $(svgEl('path')).attr({
+    d: edgeWalls,
+    stroke: '#979797',
+    'stroke-width': 5,
+    fill: 'none'
+  }).appendTo($svg);
+
+  return $svg;
+}
+
+function svgEl(elementName) {
+  return document.createElementNS("http://www.w3.org/2000/svg", elementName);
+}
+
+function xy(x, y) {
+  return x + ' ' + y;
+}
+
+function getPoints(x, y, size) {
+
+  var offsetX = x * size;
+  var offsetY = y * size;
+
+  if (true) {
+    var margin = 0;
+    offsetX += margin;
+    offsetY += margin;
+    size -= margin + margin;
+  }
+
+  var quarter = size / 4;
+  var half = size / 2;
+  var point = size / 10;
+
+  var points = [];
+
+  // Top left.
+  points.push(xy(offsetX, offsetY));
+
+  // Top right.
+  points.push(xy(offsetX + size, offsetY));
+
+  // Bottom right.
+  points.push(xy(offsetX + size, offsetY + size));
+
+  // Bottom left.
+  points.push(xy(offsetX, offsetY + size));
+
+  return points;
+}
+
+function tToX(t, l) {
+  if (t <= 4) {
+    return 4 - t;
+  } else if (t >= 13) {
+    return 8 - (t - 12);
+  } else {
+    return t - 5;
+  }
+}
+
+function tToY(t, l) {
+  if (t <= 4 || t >= 13) {
+    return l === 'p' ? 2 : 0;
+  } else {
+    return 1;
+  }
+}
+
+function getTrackInfo() {
+
+  var trackInfo = [];
+
+  for (var _t = 0; _t <= 15; _t++) {
+    if (_t <= 4 || _t >= 13) {
+      trackInfo.push({
+        t: _t,
+        x: tToX(_t, 'p'),
+        y: tToY(_t, 'p'),
+        l: 'player'
+      });
+      trackInfo.push({
+        t: _t,
+        x: tToX(_t, 'e'),
+        y: tToY(_t, 'e'),
+        l: 'enemy'
+      });
+    } else {
+      trackInfo.push({
+        t: _t,
+        x: tToX(_t),
+        y: tToY(_t),
+        l: 'middle'
+      });
+    }
+  }
+
+  return trackInfo;
+}
+
+function generateSvgSquare(trackInfo) {
+
+  var xPos = trackInfo.x * 100;
+  var yPos = trackInfo.y * 100;
+
+  var $svg = $('<svg width="100" height="100" x="' + xPos + '" y="' + yPos + '">');
+
+  // Background of the cell.
+  var checkerColor = (trackInfo.x + trackInfo.y) % 2 === 0 ? 'dark' : 'light';
+  var backgroundColor = trackInfo.t > 0 && trackInfo.t < 15 ? checkerColor : 'empty';
+  $(svgEl('rect')).attr({
+    width: 100,
+    height: 100
+  }).addClass('background').addClass(backgroundColor).appendTo($svg);
+
+  // Render a graphic for the special squares.
+  if ([4, 8, 13].indexOf(trackInfo.t) >= 0) {
+    $(svgEl('polygon')).attr({
+      points: '50 76.0000014 39.6472382 88.6370331 36.9999993 72.5166617 21.7157288 78.2842712 27.4833383 63.0000007 11.3629669 60.3527618 23.9999986 50 11.3629669 39.6472382 27.4833383 36.9999993 21.7157288 21.7157288 36.9999993 27.4833383 39.6472382 11.3629669 50 23.9999986 60.3527618 11.3629669 63.0000007 27.4833383 78.2842712 21.7157288 72.5166617 36.9999993 88.6370331 39.6472382 76.0000014 50 88.6370331 60.3527618 72.5166617 63.0000007 78.2842712 78.2842712 63.0000007 72.5166617 60.3527618 88.6370331',
+      fill: 'rgba(0, 0, 0, .1)'
+    }).addClass('special').appendTo($svg);
+  }
+
+  // Valid Move Emphasis.
+  $(svgEl('circle')).attr({
+    cx: 50,
+    cy: 50,
+    r: 25
+  }).addClass('valid-move').appendTo($svg);
+
+  $(svgEl('rect')).attr({
+    width: 100,
+    height: 100
+  }).addClass('valid-move').appendTo($svg);
+
+  // Tokens.
+  $(svgEl('circle')).attr({
+    cx: 50,
+    cy: 50,
+    r: 22
+  }).addClass('token').appendTo($svg);
+
+  // Render the track number.
+  $(svgEl('text')).attr({
+    x: 50,
+    y: 50
+  }).text(trackInfo.t).appendTo($svg);
+
+  if (trackInfo.l !== 'enemy') {
+    // We don't need events on the enemy side.
+    $svg.on('click', function () {
+      attemptMove(trackInfo.t, trackInfo.l);
+    });
+  }
+
+  return $svg;
+}
+
+function Arrow(input) {
+
+  // The original input used to generate the arrow.
+  this.input = input;
+
+  // An array of strings 'u', 'd', 'l', 'r' describing the path of the arrow.
+  this.directions = null;
+
+  // Used to keep track of where the arrow is moving to as we generate it.
+  this.currentX = 0;
+  this.currentY = 0;
+
+  // The bounds are used to keep track of the biggest offset in each direction.
+  this.bounds = { minX: 0, maxX: 0, minY: 0, maxY: 0 };
+
+  // The arrow positioning offset.
+  this.offset = { x: 0, y: 0 };
+
+  this.size = { width: 0, height: 0 };
+
+  // An array containing details of each piece we need to render.
+  this.arrowDetails = [];
+
+  this.DIRECTION = {
+    UP: 'u',
+    DOWN: 'd',
+    LEFT: 'l',
+    RIGHT: 'r'
+  };
+
+  this.fromString(input);
+  this.render();
+}
+Arrow.prototype.fromString = function (string) {
+  this.directions = string.split('');
+
+  var directionModifiers = {
+    x: { l: -1, r: 1, u: 0, d: 0 },
+    y: { l: 0, r: 0, u: -1, d: 1 }
+  };
+
+  // Travel through the arrow path keeping track of the position of each piece.
+  // Also keep track of the bounds of the arrow, it'll be needed to determine the canvas size.
+  for (var i = 0; i < this.directions.length; i++) {
+    var direction = this.directions[i];
+
+    this.arrowDetails.push({
+      x: this.currentX,
+      y: this.currentY,
+      d: direction
+    });
+
+    this.currentX += directionModifiers.x[direction];
+    this.currentY += directionModifiers.y[direction];
+
+    if (direction === this.DIRECTION.UP) {
+      this.bounds.minY = Math.min(this.currentY, this.bounds.minY);
+    } else if (direction === this.DIRECTION.DOWN) {
+      this.bounds.maxY = Math.max(this.currentY, this.bounds.maxY);
+    } else if (direction === this.DIRECTION.LEFT) {
+      this.bounds.minX = Math.min(this.currentX, this.bounds.minX);
+    } else if (direction === this.DIRECTION.RIGHT) {
+      this.bounds.maxX = Math.max(this.currentX, this.bounds.maxX);
+    }
+  }
+
+  // Add an extra element onto the end for the rendering of the arrow head.
+  var lastDirection = this.arrowDetails[this.arrowDetails.length - 1].d;
+  this.arrowDetails.push({
+    x: this.currentX, // += directionModifiers.x[lastDirection],
+    y: this.currentY, // += directionModifiers.y[lastDirection],
+    d: lastDirection
+  });
+
+  // Find the furthest negative X and Y positions, we'll need to move our arrow based on these values.
+  this.offset = {
+    x: this.arrowDetails.reduce(function (carry, current) {
+      return Math.min(current.x, carry);
+    }, 0),
+    y: this.arrowDetails.reduce(function (carry, current) {
+      return Math.min(current.y, carry);
+    }, 0)
+  };
+
+  // Calculate the width and height needed to contain the arrow.
+  this.size = {
+    width: Math.abs(this.bounds.minX) + this.bounds.maxX + 1,
+    height: Math.abs(this.bounds.minY) + this.bounds.maxY + 1
+  };
+
+  // Apply the calculated offset to each piece.
+  for (var _i5 = 0; _i5 < this.arrowDetails.length; _i5++) {
+    this.arrowDetails[_i5].x -= this.offset.x;
+    this.arrowDetails[_i5].y -= this.offset.y;
+  }
+
+  this.pieceDetails.cap.svg = $svgArrowCap;
+  this.pieceDetails.straight.svg = $svgArrowStraight;
+  this.pieceDetails.corner.svg = $svgArrowCorner;
+  this.pieceDetails.head.svg = $svgArrowHead;
+};
+Arrow.prototype.pieceDetails = {
+  cap: {
+    rotationMap: {
+      l: 0, u: 1, r: 2, d: 3
+    },
+    svg: $svgArrowCorner
+  },
+  straight: {
+    rotationMap: {
+      l: 0, u: 1, r: 0, d: 1
+    },
+    svg: $svgArrowStraight
+  },
+  corner: {
+    rotationMap: {
+      // The corner rotation map includes the directions we are coming from and going in.
+      // For example lu is from left going up.
+      lu: 0, ld: 1,
+      ur: 1, ul: 2,
+      rd: 2, ru: 3,
+      dr: 0, dl: 3
+    },
+    svg: $svgArrowCorner
+  },
+  head: {
+    rotationMap: {
+      l: 3, u: 0, r: 1, d: 2
+    },
+    svg: $svgArrowHead
+  }
+};
+Arrow.prototype.trackDirections = {
+  player: 'llllurrrrrrrdll',
+  enemy: 'lllldrrrrrrrull'
+};
+Arrow.prototype.getArrowPath = function (t, moves, track) {
+  return this.trackDirections[track].substr(t, moves);
+};
+Arrow.prototype.render = function () {
+  var $svg = $('<svg version="1.1" xmlns="http://www.w3.org/2000/svg" class="arrow">').attr({
+    width: this.size.width * 100,
+    height: this.size.height * 100
+  });
+
+  for (var i = 0; i < this.arrowDetails.length; i++) {
+
+    var thisDirection = this.arrowDetails[i].d;
+    var lastDirection = i === 0 ? thisDirection : this.arrowDetails[i - 1].d;
+
+    var pieceType = void 0;
+
+    if (i === 0) {
+      // Cap piece.
+      pieceType = 'cap';
+    } else if (i === this.arrowDetails.length - 1) {
+      // Arrow head.
+      pieceType = 'head';
+    } else if (thisDirection === lastDirection) {
+      // Straight piece.
+      pieceType = 'straight';
+    } else {
+      // Corner piece.
+      pieceType = 'corner';
+    }
+
+    var partDetails = this.pieceDetails[pieceType];
+
+    // Determine the required rotation for the piece.
+    var rotationKey = void 0;
+    if (pieceType === 'corner') {
+      rotationKey = lastDirection + thisDirection;
+    } else {
+      rotationKey = thisDirection;
+    }
+
+    var rotation = (partDetails.rotationMap[rotationKey] || 0) * 90;
+
+    // Apply the settings need to position the piece properly.
+    var attributes = {
+      position: {
+        x: this.arrowDetails[i].x * 100,
+        y: this.arrowDetails[i].y * 100
+      },
+      rotation: {
+        transform: 'rotate(' + rotation + ' 50 50)'
+      }
+    };
+
+    var $partClone = partDetails.svg.clone();
+    $partClone.find('.part').attr(attributes.rotation);
+    $partClone.attr(attributes.position).appendTo($svg);
+  }
+
+  this.svg = $svg;
+};
+
+function preRenderSvgArrowParts() {
+
+  var $svgTemplate = $('<svg version="1.1">').attr({
+    width: 100,
+    height: 100,
+    viewBox: '0 0 100 100'
+  });
+
+  // Render the arrow head.
+  $svgArrowHead = $svgTemplate.clone().addClass('head');
+  $(svgEl('path')).attr({
+    d: 'M38,95 L26,95 L50,71 L74,95 L62,95 L62,100 L38,100 L38,95 Z'
+  }).addClass('part').appendTo($svgArrowHead);
+
+  // Render the arrow corner.
+  $svgArrowCorner = $svgTemplate.clone().addClass('corner');
+  $(svgEl('path')).attr({
+    d: 'M85,38 L100,38 L100,62 L85,62 C59.3697972,62 38.5312452,41.0480046 38.0099971,15 L38,15 L38,0 L62,0 L62,15 C62,27.7025492 71.8497355,38 84,38 C84.3351364,38 84.6685225,37.9921657 85,37.9766627 L85,38 Z'
+  }).addClass('part').appendTo($svgArrowCorner);
+
+  // Render the arrow straight.
+  $svgArrowStraight = $svgTemplate.clone().addClass('straight');
+  $(svgEl('rect')).attr({
+    x: 0,
+    y: 38,
+    width: 100,
+    height: 24
+  }).addClass('part').appendTo($svgArrowStraight);
+
+  // Render the arrow cap.
+  $svgArrowCap = $svgTemplate.clone().addClass('cap');
+  $(svgEl('rect')).attr({
+    x: 0,
+    y: 38,
+    width: 50,
+    height: 24
+  }).addClass('part').appendTo($svgArrowCap);
+}
+
+function attemptMove(trackId, laneName) {
+  if (!currentGame || !currentGame.isValidMove(trackId, laneName)) {
+    return;
+  }
+
+  console.log(laneName + ':' + trackId + ' looks good to the client');
+  socket.emit('game-move', {
+    gameId: currentGame.id,
+    track: trackId,
+    lane: laneName
+  });
 }
 
 /***/ }),
@@ -16947,16 +17443,7 @@ Game.prototype.rollDice = function () {
  * @returns {Object.<int,int>} The pre-populated track.
  */
 Game.prototype.getTrack = function () {
-
   return new Array(15).fill(0);
-
-  var track = {};
-
-  for (var i = 0; i <= 15; i++) {
-    track[i] = 0;
-  }
-
-  return track;
 };
 
 /**
@@ -17039,6 +17526,18 @@ Game.prototype.getValidMoves = function () {
 };
 
 /**
+ * Get the values of this object.
+ *
+ * @param {object} obj The object to get the values from.
+ * @returns {[]} An array of values from the provided object.
+ */
+Game.prototype.getValues = function (obj) {
+  return Object.keys(obj).map(function (k) {
+    return obj[k];
+  });
+};
+
+/**
  * Check to see if there are any valid moves for the current player.
  *
  * @returns {boolean} True if the current player has valid moves; false otherwise.
@@ -17046,7 +17545,7 @@ Game.prototype.getValidMoves = function () {
 Game.prototype.hasValidMoves = function () {
 
   // Collate all the booleans representing valid moves for each position on the track [true, false, false, true, etc].
-  var validMovesBoolArray = Object.values(this.getValidMoves());
+  var validMovesBoolArray = this.getValues(this.getValidMoves());
 
   // Sum all the booleans - a non-zero value indicates a number of valid moves.
   var numberOfValidMoves = validMovesBoolArray.reduce(function (boolean, sumOfBooleans) {
@@ -17195,8 +17694,7 @@ function Player(pid, playerNumber) {
 }
 
 /***/ }),
-/* 133 */,
-/* 134 */
+/* 133 */
 /***/ (function(module, exports, __webpack_require__) {
 
 
@@ -17204,7 +17702,7 @@ function Player(pid, playerNumber) {
  * Module dependencies.
  */
 
-var url = __webpack_require__(135);
+var url = __webpack_require__(134);
 var parser = __webpack_require__(45);
 var Manager = __webpack_require__(79);
 var debug = __webpack_require__(25)('socket.io-client');
@@ -17296,7 +17794,7 @@ exports.Socket = __webpack_require__(85);
 
 
 /***/ }),
-/* 135 */
+/* 134 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {
@@ -17378,7 +17876,7 @@ function url (uri, loc) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ }),
-/* 136 */
+/* 135 */
 /***/ (function(module, exports, __webpack_require__) {
 
 
@@ -17394,7 +17892,7 @@ exports.coerce = coerce;
 exports.disable = disable;
 exports.enable = enable;
 exports.enabled = enabled;
-exports.humanize = __webpack_require__(137);
+exports.humanize = __webpack_require__(136);
 
 /**
  * Active `debug` instances.
@@ -17609,7 +18107,7 @@ function coerce(val) {
 
 
 /***/ }),
-/* 137 */
+/* 136 */
 /***/ (function(module, exports) {
 
 /**
@@ -17767,7 +18265,7 @@ function plural(ms, n, name) {
 
 
 /***/ }),
-/* 138 */
+/* 137 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(process) {/**
@@ -17776,7 +18274,7 @@ function plural(ms, n, name) {
  * Expose `debug()` as the module.
  */
 
-exports = module.exports = __webpack_require__(139);
+exports = module.exports = __webpack_require__(138);
 exports.log = log;
 exports.formatArgs = formatArgs;
 exports.save = save;
@@ -17969,7 +18467,7 @@ function localstorage() {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(44)))
 
 /***/ }),
-/* 139 */
+/* 138 */
 /***/ (function(module, exports, __webpack_require__) {
 
 
@@ -17985,7 +18483,7 @@ exports.coerce = coerce;
 exports.disable = disable;
 exports.enable = enable;
 exports.enabled = enabled;
-exports.humanize = __webpack_require__(140);
+exports.humanize = __webpack_require__(139);
 
 /**
  * Active `debug` instances.
@@ -18200,7 +18698,7 @@ function coerce(val) {
 
 
 /***/ }),
-/* 140 */
+/* 139 */
 /***/ (function(module, exports) {
 
 /**
@@ -18358,7 +18856,7 @@ function plural(ms, n, name) {
 
 
 /***/ }),
-/* 141 */
+/* 140 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {/*global Blob,File*/
@@ -18506,11 +19004,11 @@ exports.removeBlobs = function(data, callback) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ }),
-/* 142 */
+/* 141 */
 /***/ (function(module, exports, __webpack_require__) {
 
 
-module.exports = __webpack_require__(143);
+module.exports = __webpack_require__(142);
 
 /**
  * Exports parser
@@ -18522,7 +19020,7 @@ module.exports.parser = __webpack_require__(17);
 
 
 /***/ }),
-/* 143 */
+/* 142 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {/**
@@ -19272,7 +19770,7 @@ Socket.prototype.filterUpgrades = function (upgrades) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ }),
-/* 144 */
+/* 143 */
 /***/ (function(module, exports) {
 
 
@@ -19295,7 +19793,7 @@ try {
 
 
 /***/ }),
-/* 145 */
+/* 144 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {/**
@@ -19714,7 +20212,7 @@ function unloadHandler () {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ }),
-/* 146 */
+/* 145 */
 /***/ (function(module, exports) {
 
 
@@ -19739,7 +20237,7 @@ module.exports = Object.keys || function keys (obj){
 
 
 /***/ }),
-/* 147 */
+/* 146 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -19753,9 +20251,9 @@ module.exports = Object.keys || function keys (obj){
 
 
 
-var base64 = __webpack_require__(148)
-var ieee754 = __webpack_require__(149)
-var isArray = __webpack_require__(150)
+var base64 = __webpack_require__(147)
+var ieee754 = __webpack_require__(148)
+var isArray = __webpack_require__(149)
 
 exports.Buffer = Buffer
 exports.SlowBuffer = SlowBuffer
@@ -21536,7 +22034,7 @@ function isnan (val) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ }),
-/* 148 */
+/* 147 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -21694,7 +22192,7 @@ function fromByteArray (uint8) {
 
 
 /***/ }),
-/* 149 */
+/* 148 */
 /***/ (function(module, exports) {
 
 exports.read = function (buffer, offset, isLE, mLen, nBytes) {
@@ -21784,7 +22282,7 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
 
 
 /***/ }),
-/* 150 */
+/* 149 */
 /***/ (function(module, exports) {
 
 var toString = {}.toString;
@@ -21795,7 +22293,7 @@ module.exports = Array.isArray || function (arr) {
 
 
 /***/ }),
-/* 151 */
+/* 150 */
 /***/ (function(module, exports) {
 
 /**
@@ -21830,7 +22328,7 @@ module.exports = function(arraybuffer, start, end) {
 
 
 /***/ }),
-/* 152 */
+/* 151 */
 /***/ (function(module, exports) {
 
 module.exports = after
@@ -21864,7 +22362,7 @@ function noop() {}
 
 
 /***/ }),
-/* 153 */
+/* 152 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(module, global) {var __WEBPACK_AMD_DEFINE_RESULT__;/*! https://mths.be/utf8js v2.1.2 by @mathias */
@@ -22122,10 +22620,10 @@ function noop() {}
 
 }(this));
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(154)(module), __webpack_require__(4)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(153)(module), __webpack_require__(4)))
 
 /***/ }),
-/* 154 */
+/* 153 */
 /***/ (function(module, exports) {
 
 module.exports = function(module) {
@@ -22153,7 +22651,7 @@ module.exports = function(module) {
 
 
 /***/ }),
-/* 155 */
+/* 154 */
 /***/ (function(module, exports) {
 
 /*
@@ -22226,7 +22724,7 @@ module.exports = function(module) {
 
 
 /***/ }),
-/* 156 */
+/* 155 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {/**
@@ -22329,7 +22827,7 @@ module.exports = (function() {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ }),
-/* 157 */
+/* 156 */
 /***/ (function(module, exports, __webpack_require__) {
 
 
@@ -22345,7 +22843,7 @@ exports.coerce = coerce;
 exports.disable = disable;
 exports.enable = enable;
 exports.enabled = enabled;
-exports.humanize = __webpack_require__(158);
+exports.humanize = __webpack_require__(157);
 
 /**
  * Active `debug` instances.
@@ -22560,7 +23058,7 @@ function coerce(val) {
 
 
 /***/ }),
-/* 158 */
+/* 157 */
 /***/ (function(module, exports) {
 
 /**
@@ -22718,7 +23216,7 @@ function plural(ms, n, name) {
 
 
 /***/ }),
-/* 159 */
+/* 158 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {
@@ -22956,7 +23454,7 @@ JSONPPolling.prototype.doWrite = function (data, fn) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ }),
-/* 160 */
+/* 159 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {/**
@@ -22973,7 +23471,7 @@ var BrowserWebSocket = global.WebSocket || global.MozWebSocket;
 var NodeWebSocket;
 if (typeof window === 'undefined') {
   try {
-    NodeWebSocket = __webpack_require__(161);
+    NodeWebSocket = __webpack_require__(160);
   } catch (e) { }
 }
 
@@ -23249,13 +23747,13 @@ WS.prototype.check = function () {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ }),
-/* 161 */
+/* 160 */
 /***/ (function(module, exports) {
 
 /* (ignored) */
 
 /***/ }),
-/* 162 */
+/* 161 */
 /***/ (function(module, exports) {
 
 module.exports = toArray
@@ -23274,7 +23772,7 @@ function toArray(list, index) {
 
 
 /***/ }),
-/* 163 */
+/* 162 */
 /***/ (function(module, exports) {
 
 
