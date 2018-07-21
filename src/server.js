@@ -116,11 +116,7 @@ if (fs.existsSync('./ApplicationData.json')) {
     const newGameObject = new Game(gameData.player1.pid, gameData.player2.pid);
 
     // Copy the server state onto the client state.
-    const gameProperties = ['id', 'turn', 'track', 'state', 'player1', 'player2', 'currentRoll', 'currentPlayer'];
-
-    for (let p = 0; p < gameProperties.length; p++) {
-      newGameObject[gameProperties[p]] = gameData[gameProperties[p]];
-    }
+    newGameObject.hydrate(gameData);
 
     gamesObjectified[newGameObject.id] = newGameObject;
   }
@@ -429,6 +425,9 @@ io.on('connection', function (socket) {
       // Nothing to do for now.
       return;
     }
+
+    // Record the move.
+    gameState.lastMoves[currentPlayer.pid].push(`${details.track}:${gameState.currentRoll}`);
 
     const destination = parseInt(details.track) + parseInt(gameState.currentRoll);
 

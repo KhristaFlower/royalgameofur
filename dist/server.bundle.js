@@ -188,11 +188,7 @@ if (fs.existsSync('./ApplicationData.json')) {
     var newGameObject = new Game(gameData.player1.pid, gameData.player2.pid);
 
     // Copy the server state onto the client state.
-    var gameProperties = ['id', 'turn', 'track', 'state', 'player1', 'player2', 'currentRoll', 'currentPlayer'];
-
-    for (var p = 0; p < gameProperties.length; p++) {
-      newGameObject[gameProperties[p]] = gameData[gameProperties[p]];
-    }
+    newGameObject.hydrate(gameData);
 
     gamesObjectified[newGameObject.id] = newGameObject;
   }
@@ -497,6 +493,9 @@ io.on('connection', function (socket) {
       // Nothing to do for now.
       return;
     }
+
+    // Record the move.
+    gameState.lastMoves[currentPlayer.pid].push(details.track + ':' + gameState.currentRoll);
 
     var destination = parseInt(details.track) + parseInt(gameState.currentRoll);
 
@@ -1125,6 +1124,15 @@ function Game(pid1, pid2) {
   this.state = 0;
 
   /**
+   * The last moves made by the players.
+   *
+   * @type {Object.<int,string[]>}
+   */
+  this.lastMoves = {};
+  this.lastMoves[pid1] = [];
+  this.lastMoves[pid2] = [];
+
+  /**
    * The track stores the positions of players along the board.
    *
    * Note that bitwise operations are used to store the location of player 1 and player 2 in a single integer.
@@ -1337,6 +1345,9 @@ Game.prototype.getEnemyOfPlayerId = function (pid) {
  */
 Game.prototype.switchCurrentPlayer = function () {
   this.currentPlayer = this.getEnemyPlayer().pid;
+
+  // Clear the next players last moves so they can be recorded new for this round.
+  this.lastMoves[this.currentPlayer] = [];
 };
 
 /**

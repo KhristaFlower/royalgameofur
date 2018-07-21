@@ -730,3 +730,29 @@ svg.cell.valid:hover + svg.arrow {
     fill: rgba(255, 0, 0, 0.2); }
   .arrow.last .part {
     fill: rgba(128, 128, 128, 0.2); }
+
+.arrow.guide {
+  pointer-events: none; }
+  .arrow.guide.player .part {
+    fill: rgba(0, 0, 128, 0.2); }
+  .arrow.guide.enemy .part {
+    fill: rgba(128, 0, 0, 0.2); }
+  .arrow.guide.last .part {
+    fill: rgba(128, 128, 128, 0.2); }
+
+.ani-token.player {
+  fill: #8080ff; }
+
+.ani-token.enemy {
+  fill: #ff8080; }
+
+.animate-t0-m4-p {
+  animation: move 1s linear infinite; }
+
+@keyframes move {
+  0% {
+    motion-offset: 0%;
+    offset-distance: 0%; }
+  100% {
+    motion-offset: 100%;
+    offset-distance: 100%; } }

@@ -69,6 +69,15 @@ function Game (pid1, pid2) {
   this.state = 0;
 
   /**
+   * The last moves made by the players.
+   *
+   * @type {Object.<int,string[]>}
+   */
+  this.lastMoves = {};
+  this.lastMoves[pid1] = [];
+  this.lastMoves[pid2] = [];
+
+  /**
    * The track stores the positions of players along the board.
    *
    * Note that bitwise operations are used to store the location of player 1 and player 2 in a single integer.
@@ -279,6 +288,9 @@ Game.prototype.getEnemyOfPlayerId = function (pid) {
  */
 Game.prototype.switchCurrentPlayer = function () {
   this.currentPlayer = this.getEnemyPlayer().pid;
+
+  // Clear the next players last moves so they can be recorded new for this round.
+  this.lastMoves[this.currentPlayer] = [];
 };
 
 /**

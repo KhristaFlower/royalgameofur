@@ -3,7 +3,8 @@ require('./scss/ur.scss');
 const Game = require('./js/Game');
 const io = require('socket.io-client');
 
-const debugSocketEvents = false;
+const debugSocketEvents = true;
+const tokenMoveSpeed = 500;
 
 // Create a placeholder game object.
 let currentGameState = new Game(1, 2);
@@ -285,8 +286,11 @@ const events = {
       game.hydrate(gameData);
 
       if (currentGame !== null && currentGame.id === gameData.id) {
+        // Check to see if players made a move we need to animate.
+        const animate = (JSON.stringify(game.lastMoves) !== JSON.stringify(currentGame.lastMoves));
+
         currentGame = game;
-        renderGameBoard();
+        renderGameBoard(animate);
         renderTitle();
       } else {
         console.log('got activity for a game we\'re not looking at; updating sidebar only');
@@ -506,6 +510,8 @@ $(() => {
 
     showMessageBox(title, message);
   });
+
+  $('.left > .title').on('click', openAdminMenu);
 });
 
 function doLogin () {
@@ -664,7 +670,10 @@ function renderLobbyGameList() {
   renderTitle();
 }
 
-function renderGameBoard() {
+function renderGameBoard(withAnimation) {
+  withAnimation = withAnimation || false;
+
+  console.log('rendering with animation', withAnimation);
 
   const player1 = currentGame.player1;
   const player2 = currentGame.player2;
@@ -677,6 +686,40 @@ function renderGameBoard() {
   $('svg.arrow').remove();
 
   renderGameInformation(player, enemy);
+
+  // Get the tokens that moved last turn, we'll use this to decide what needs to be animated.
+  const waitingPlayerId = currentGame.getEnemyOfPlayerId(currentGame.currentPlayer).pid;
+  const waitingPlayersLastMoves = currentGame.lastMoves[waitingPlayerId];
+  console.log('waitingId', waitingPlayerId, 'lastMoves', waitingPlayersLastMoves);
+  const lastMoves = currentGame.lastMoves[waitingPlayerId].map(function (item) {
+    return item.split(':');
+  });
+
+  const waitingNumber = currentGame.getPlayerById(waitingPlayerId).number;
+
+  if (withAnimation && false) {
+    const p = waitingPlayerId === myPlayerId ? 'p' : 'e';
+    const l = waitingPlayerId === myPlayerId ? 'player' : 'enemy';
+    let queuedDelay = 0;
+    for (let i = 0; i < lastMoves.length; i++) {
+      const lastMove = lastMoves[i];
+      console.log('lastMove', lastMove);
+      const delay = lastMove[1] * tokenMoveSpeed;
+      setTimeout(() => {
+        animateToken(lastMove[0], lastMove[1], p)
+          .then(() => {
+            const t = parseInt(lastMove[0]) + parseInt(lastMove[1]);
+            // Only add the class if there is a token on that spot still.
+            // This can happen when the player moves a token, lands on a special square
+            // and then moves that token again.
+            if ((currentGame.track[t] & waitingNumber) === waitingNumber) {
+              $('svg.cell.t-' + t + '.l-' + l).addClass(l);
+            }
+          });
+      }, queuedDelay);
+      queuedDelay += delay;
+    }
+  }
 
   // Update token positions on the board.
   for (let i = 1; i <= 14; i++) {
@@ -747,43 +790,30 @@ function renderGameBoard() {
 
   renderLobbyGameList();
 
-  // Render arrows once we have the dice roll.
-  if (currentGame.currentRoll && false) {
-    /*
-     * TODO: Move arrow rendering to just after we've rendered a valid move.
-     * This means the arrow would be a direct sibling of the valid move square
-     * and would allow us to make use of the square:hover+arrow CSS syntax to
-     * control element visibility. This method will likely mean we need to
-     * review the z-indexes of the elements on the board SVG.
-     */
+  // Render arrows as hints to show the last moves.
+  const pids = [player.pid, enemy.pid];
+  for (let i = 0; i < pids.length; i++) {
+    const lastMoves = currentGame.lastMoves[pids[i]];
+    const playerTrack = pids[i] === myPlayerId ? 'player' : 'enemy';
+    const trackShort = playerTrack.substr(0, 1);
+    console.log('lastMoves for ' + playerTrack, lastMoves);
+    for (let j = 0; j < lastMoves.length; j++) {
+      const parts = lastMoves[j].split(':');
+      const t = parts[0];
+      const roll = parts[1];
 
-    const validMoves = currentGame.getValidMoves();
-    const currentPlayer = currentGame.getCurrentPlayer();
+      const moves = Arrow.prototype.getArrowPath(t, roll, playerTrack);
+      const guideArrow = new Arrow(moves);
 
-    const currentPlayerSettings = {
-      lane: currentPlayer.pid === myPlayerId ? 'p' : 'e',
-      class: currentPlayer.pid === myPlayerId ? 'player' : 'enemy'
-    };
+      const svgAttributes = {
+        x: (tToX(t, trackShort) + guideArrow.offset.x) * 100,
+        y: (tToY(t, trackShort) + guideArrow.offset.y) * 100
+      };
 
-    for (let i = 0; i < 15; i++) {
-      if (!validMoves[i]) {
-        continue;
-      }
-
-      const tileOffsetX = tToX(i, currentPlayerSettings.lane);
-      const tileOffsetY = tToY(i, currentPlayerSettings.lane);
-
-      const arrowMoves = Arrow.prototype.getArrowPath(t, currentGame.currentRoll, currentPlayerSettings.class);
-
-      // Create the arrow.
-      const newArrow = new Arrow(arrowMoves);
-      console.log(newArrow);
-      newArrow.svg
-        .attr({
-          x: (tileOffsetX + newArrow.offset.x) * 100,
-          y: (tileOffsetY + newArrow.offset.y) * 100
-        })
-        .addClass(currentPlayerSettings.class)
+      guideArrow.svg
+        .attr(svgAttributes)
+        .addClass(playerTrack)
+        .addClass('guide')
         .appendTo($svgBoard);
     }
   }
@@ -1204,8 +1234,118 @@ function buildBoardSvg() {
     fill: 'none'
   }).appendTo($svg);
 
-
   return $svg;
+}
+
+function animateToken(t, m, p) {
+  return new Promise((resolve) => {
+    // Create the path that the token will follow.
+    const path = getPath(t, m, p);
+
+    // Calculate the time we should animate for.
+    const moveTime = tokenMoveSpeed * m;
+
+    // Create the CSS that will animate the token.
+    const cssAnimation = {
+      motionPath: `path('${path}')`,
+      offsetPath: `path('${path}')`,
+      animation: `move ${moveTime}ms linear`
+    };
+
+    const circleDetails = {
+      cx: 0,
+      cy: 0,
+      r: 22
+    };
+
+    // Make the token that we need to animate.
+    const $token = $(svgEl('circle'))
+      .attr(circleDetails)
+      .css(cssAnimation)
+      .addClass('ani-token')
+      .addClass(p === 'p' ? 'player' : 'enemy')
+      .appendTo($svgBoard);
+
+    // We need to remove the token once the animation has ended.
+    setTimeout(() => {
+      $token.remove();
+      resolve();
+    }, moveTime);
+  });
+}
+
+window.animateToken = animateToken;
+
+function getPath(track, moves, lane) {
+
+  const coordinates = {
+    p: [
+      '450 250', '350 250', '250 250', '150 250', '50 250',
+      '50 150', '150 150', '250 150', '350 150', '450 150', '550 150', '650 150', '750 150',
+      '750 250', '650 250', '550 250'
+    ],
+    e: [
+      '450 50', '350 50', '250 50', '150 50', '50 50',
+      '50 150', '150 150', '250 150', '350 150', '450 150', '550 150', '650 150', '750 150',
+      '750 50', '650 50', '550 50'
+    ]
+  };
+
+  const parts = [];
+
+  const last = parseInt(track) + parseInt(moves);
+
+  const quadSize = 20;
+
+  const bends = [4, 5, 12, 13];
+
+  for (let i = track; i <= last; i++) {
+    const letter = i === track ? 'M' : 'L';
+
+    const coordinatePair = coordinates[lane][i].split(' ');
+    const c = {
+      x: parseInt(coordinatePair[0]),
+      y: parseInt(coordinatePair[1])
+    };
+
+    if (i === last) {
+      parts.push(`${letter} ${c.x} ${c.y}`);
+    } else if (bends.indexOf(i) >= 0 && i !== track) {
+      // If we're on a corner piece we will need to make a bend.
+
+      let adj = {
+        start: { x: 0, y: 0 },
+        end: { x: 0, y: 0 }
+      };
+
+      if (i === 4) {
+        adj.start.x = quadSize;
+        adj.end.y = lane === 'p' ? -quadSize : quadSize;
+      } else if (i === 5) {
+        adj.start.y = lane === 'p' ? quadSize : -quadSize;
+        adj.end.x = quadSize;
+      } else if (i === 12) {
+        adj.start.x = -quadSize;
+        adj.end.y = lane === 'p' ? quadSize : -quadSize;
+      } else if (i === 13) {
+        adj.start.y = lane === 'p' ? -quadSize : quadSize;
+        adj.end.x = -quadSize;
+      }
+
+      const startX = c.x + adj.start.x;
+      const startY = c.y + adj.start.y;
+      const endX = c.x + adj.end.x;
+      const endY = c.y + adj.end.y;
+
+      const quad = `${letter} ${startX} ${startY} Q ${c.x} ${c.y} ${endX} ${endY}`;
+      parts.push(quad);
+    } else {
+      parts.push(`${letter} ${c.x} ${c.y}`);
+    }
+  }
+
+  return parts.join(' ');
+
 }
 
 function svgEl(elementName) {
@@ -1611,4 +1751,10 @@ function attemptMove(trackId, laneName) {
     track: trackId,
     lane: laneName
   });
+}
+
+function openAdminMenu() {
+
+
+
 }

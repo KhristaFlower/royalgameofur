@@ -73,3 +73,59 @@ svg.cell {
     fill: rgba(128, 128, 128, .2);
   }
 }
+
+.arrow.guide {
+  pointer-events: none;
+
+  &.player .part{
+    fill: rgba(0, 0, 128, .2);
+  }
+  &.enemy .part {
+    fill: rgba(128, 0, 0, .2);
+  }
+  &.last .part {
+    fill: rgba(128, 128, 128, .2);
+  }
+}
+
+
+.ani-token {
+  //animation: move 1s linear infinite;
+
+  &.player {
+    fill: #8080ff;
+  }
+  &.enemy {
+    fill: #ff8080;
+  }
+}
+
+$msPerMovement: 250ms;
+
+@for $t from 0 to 14 {
+  @for $m from 1 to 4 {
+    .animate-t#{$t}-m#{$m}-p {
+
+    }
+  }
+}
+
+.animate-t0-m4-p {
+  //$path: 'M 450 250 L 70 250 Q 50 250 50 230 L 50 170 Q 50 150 70 150 L 730 150 Q 750 150 750 170 L 750 230 Q 750 250 730 250 L 550 250';
+  //motion-path: path($path);
+  //offset-path: path($path);
+  animation: move 1s linear infinite;
+}
+
+@keyframes move {
+  $start: 0%;
+  $end: 100%;
+  0% {
+    motion-offset: $start;
+    offset-distance: $start;
+  }
+  100% {
+    motion-offset: $end;
+    offset-distance: $end;
+  }
+}
