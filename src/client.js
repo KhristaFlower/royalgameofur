@@ -277,27 +277,46 @@ const events = {
      * Sent by the server when another player did something to send us an update.
      * This method will chose to discard the information if the user isn't viewing
      * the game this update is for.
-     * @param {Game} gameData
+     * @param {{game: Game, delta: {move: {pid: int, t: int, m: int}}}} gameData
      */
     activity: function (gameData) {
       if (debugSocketEvents) console.log('game.activity', gameData);
 
+      console.group('game.activity');
+
+      const delta = gameData.delta;
+
       const game = new Game(0, 0);
-      game.hydrate(gameData);
+      game.hydrate(gameData.game);
 
-      if (currentGame !== null && currentGame.id === gameData.id) {
+      if (currentGame !== null && currentGame.id === gameData.game.id) {
         // Check to see if players made a move we need to animate.
-        const animate = (JSON.stringify(game.lastMoves) !== JSON.stringify(currentGame.lastMoves));
+        // currentGame = game;
 
-        currentGame = game;
-        renderGameBoard(animate);
+        // Copy everything over except for the track.
+        const copyProps = Object.keys(game);
+        copyProps.splice(copyProps.indexOf('track'), 1);
+        for (let i = 0; i < copyProps.length; i++) {
+          currentGame[copyProps[i]] = game[copyProps[i]];
+        }
+
+        renderGameBoard();
         renderTitle();
+
+        // Create the animations if required.
+        if ('move' in delta) {
+          moveToken(currentGame.id, delta.move.pid, delta.move.t, delta.move.m)
+            .then(() => {
+              currentGame.track = game.track;
+            });
+        }
+
       } else {
         console.log('got activity for a game we\'re not looking at; updating sidebar only');
         // Update the sidebar with the new information.
         for (let i = 0; i < lobbyGameList.length; i++) {
           // Search for the existing game item.
-          if (lobbyGameList[i].gameId === gameData.id) {
+          if (lobbyGameList[i].gameId === gameData.game.id) {
             // We found the game entry, hydrate a game object so we can use helper functions.
             lobbyGameList[i].currentPlayer.id = game.getCurrentPlayer().pid;
             lobbyGameList[i].currentPlayer.name = game.getCurrentPlayer().name;
@@ -310,6 +329,27 @@ const events = {
             break;
           }
         }
+      }
+      console.groupEnd();
+    },
+    /**
+     * Sent by the server to indicate a move has happened, this payload only contains
+     * the information required to convey the changes and doesn't provide a full game
+     * update.
+     * @param {{gameId: string, event: string, data: {}}} payload
+     */
+    delta: function (payload) {
+      console.log('game.delta', payload);
+      if (payload.gameId !== currentGame.id) {
+        // Nothing to do if this game isn't the current one.
+        return;
+      }
+
+      const event = payload.event;
+      const data = payload.data;
+
+      if (event === 'move') {
+        moveToken(payload.gameId, data.pid, data.t, data.m);
       }
     },
     /**
@@ -422,6 +462,7 @@ socket.on('lobby-game-exists', events.lobby.games.exists);
 // Playing
 socket.on('game-set', events.game.set);
 socket.on('game-activity', events.game.activity);
+socket.on('game-delta', events.game.delta);
 socket.on('game-remove', events.game.remove);
 
 // Social
@@ -510,8 +551,6 @@ $(() => {
 
     showMessageBox(title, message);
   });
-
-  $('.left > .title').on('click', openAdminMenu);
 });
 
 function doLogin () {
@@ -670,10 +709,8 @@ function renderLobbyGameList() {
   renderTitle();
 }
 
-function renderGameBoard(withAnimation) {
-  withAnimation = withAnimation || false;
-
-  console.log('rendering with animation', withAnimation);
+function renderGameBoard() {
+  console.group('renderGameBoard');
 
   const player1 = currentGame.player1;
   const player2 = currentGame.player2;
@@ -694,32 +731,6 @@ function renderGameBoard(withAnimation) {
   const lastMoves = currentGame.lastMoves[waitingPlayerId].map(function (item) {
     return item.split(':');
   });
-
-  const waitingNumber = currentGame.getPlayerById(waitingPlayerId).number;
-
-  if (withAnimation && false) {
-    const p = waitingPlayerId === myPlayerId ? 'p' : 'e';
-    const l = waitingPlayerId === myPlayerId ? 'player' : 'enemy';
-    let queuedDelay = 0;
-    for (let i = 0; i < lastMoves.length; i++) {
-      const lastMove = lastMoves[i];
-      console.log('lastMove', lastMove);
-      const delay = lastMove[1] * tokenMoveSpeed;
-      setTimeout(() => {
-        animateToken(lastMove[0], lastMove[1], p)
-          .then(() => {
-            const t = parseInt(lastMove[0]) + parseInt(lastMove[1]);
-            // Only add the class if there is a token on that spot still.
-            // This can happen when the player moves a token, lands on a special square
-            // and then moves that token again.
-            if ((currentGame.track[t] & waitingNumber) === waitingNumber) {
-              $('svg.cell.t-' + t + '.l-' + l).addClass(l);
-            }
-          });
-      }, queuedDelay);
-      queuedDelay += delay;
-    }
-  }
 
   // Update token positions on the board.
   for (let i = 1; i <= 14; i++) {
@@ -835,6 +846,8 @@ function renderGameBoard(withAnimation) {
     // Remove any end-game boxes.
     $('.board-container .end-game').remove();
   }
+
+  console.groupEnd();
 }
 
 function renderGameInformation(player, enemy) {
@@ -1487,11 +1500,11 @@ function generateSvgSquare(trackInfo) {
     .appendTo($svg);
 
   // Render the track number.
-  $(svgEl('text')).attr({
-    x: 50,
-    y: 50
-  }).text(trackInfo.t)
-    .appendTo($svg);
+  // $(svgEl('text')).attr({
+  //   x: 50,
+  //   y: 50
+  // }).text(trackInfo.t)
+  //   .appendTo($svg);
 
   if (trackInfo.l !== 'enemy') {
     // We don't need events on the enemy side.
@@ -1753,8 +1766,126 @@ function attemptMove(trackId, laneName) {
   });
 }
 
-function openAdminMenu() {
+function moveToken(gameId, pid, t, m) {
+  return new Promise((resolve, reject) => {
+    console.log('moveToken', {gameId:gameId,pid:pid,t:t,m:m});
+    // Verify that the game we're moving a token for is still the game we have open.
+    if (gameId !== currentGame.id) {
+      reject();
+      return;
+    }
 
+    const lane = pid === myPlayerId ? 'p' : 'e';
+    const laneFull = pid === myPlayerId ? 'player' : 'enemy';
+    const otherLane = pid === myPlayerId ? 'enemy' : 'player';
+    const d = t + m;
 
+    // Remove the original token, we can't have it in place during the animation.
+    $svgBoard.find('svg.cell.t-' + t + '.l-' + laneFull).removeClass(laneFull);
+
+    // Animate the token.
+    animateToken(t, m, lane)
+      .then(() => {
+        // Ensure the same game is still open before placing the token down.
+        // If the user swapped games we don't want interference.
+        if (gameId !== currentGame.id) {
+          return;
+        }
+
+        // Only place a new token if we aren't going to the 15th spot.
+        if (d < 15) {
+          // Place the new token.
+          $svgBoard.find('svg.cell.t-' + d + '.l-' + laneFull)
+            .addClass(laneFull)
+            // Make sure that were we landed there isn't another token.
+            .removeClass(otherLane);
+        }
+        resolve();
+      });
+    });
+}
+
+window.animationTest = function (trackIndex, movementPoints, laneName) {
+
+  const pathCoordinates = getPathCoords(trackIndex, movementPoints, laneName);
+  const initial = pathCoordinates[0];
+
+  const moveTime = 1000;
+  const animTime = 900;
+
+  let $token = $('circle.token.ani-token');
+  if (!$token.length) {
+    $token = $(svgEl('circle')).attr({
+      cx: 0,
+      cy: 0,
+      r: 22
+    }).addClass('token')
+      .addClass('ani-token');
+  }
+
+  console.log('settin to', initial.x, initial.y);
+
+  $token
+    // Position the token in the right place to start the animation.
+    .css('transform', `translate(${initial.x}px, ${initial.y}px)`)
+    // Apply transitions to the transform property to animate it.
+    .css('transition', `transform ${animTime}ms ease`)
+    .appendTo($svgBoard)
+  ;
+
+  for (let i = 1; i < pathCoordinates.length; i++) {
+    const current = pathCoordinates[i];
+    const previous = pathCoordinates[i - 1];
+
+    const sleepDelay = (i - 1) * moveTime;
+    const sleepGlobalDelay = 10;
+    const sleepInsert = i * 10;
+    const sleepTotal = sleepGlobalDelay + sleepDelay + sleepInsert;
+
+    setTimeout(() => {
+      console.log('moving to', current.x, current.y);
+      // Disable transforms and snap us straight to the next starting point
+      // (we should already be there pixel perfect), this hack works around
+      // FireFox not doing animations properly on the first run.
+      $token
+        // .css({cx: c.x, cy: c.y})
+        // .css('transform', noTransform)
+        .css('transform', `translate(${previous.x}px, ${previous.y}px)`)
+        // Move towards the next point.
+        // .css('transform', useTransform)
+        .css('transform', `translate(${current.x}px, ${current.y}px)`);
+    }, sleepTotal);
+  }
+
+};
+
+function getPathCoords(track, moves, lane) {
+
+  const coordinates = {
+    p: [
+      '450 250', '350 250', '250 250', '150 250', '50 250',
+      '50 150', '150 150', '250 150', '350 150', '450 150', '550 150', '650 150', '750 150',
+      '750 250', '650 250', '550 250'
+    ],
+    e: [
+      '450 50', '350 50', '250 50', '150 50', '50 50',
+      '50 150', '150 150', '250 150', '350 150', '450 150', '550 150', '650 150', '750 150',
+      '750 50', '650 50', '550 50'
+    ]
+  };
+
+  const parts = [];
+  const last = parseInt(track) + parseInt(moves);
+
+  for (let i = track; i <= last; i++) {
+    const coordinatePair = coordinates[lane][i].split(' ');
+    const c = {
+      x: parseInt(coordinatePair[0]),
+      y: parseInt(coordinatePair[1])
+    };
+    parts.push(c);
+  }
+
+  return parts;
 
 }

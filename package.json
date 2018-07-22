@@ -5,6 +5,7 @@
   "dependencies": {
     "bcrypt": "^2.0.1",
     "express": "^4.16.3",
+    "https": "^1.0.0",
     "jquery": "^3.3.1",
     "jsonwebtoken": "^8.3.0",
     "node-cleanup": "^2.1.2",

@@ -1,9 +1,37 @@
-const path = require('path');
+const CONFIG = require('./js/config');
+
+let protocol = 'http';
+let sslCert = null;
+let sslKey = null;
+if ('ssl' in CONFIG) {
+  if (typeof CONFIG.SSL.CERT !== 'undefined') {
+    sslCert = CONFIG.SSL.CERT;
+  }
+  if (typeof CONFIG.SSL.KEY !== 'undefined') {
+    sslKey = CONFIG.SSL.KEY;
+  }
+
+  if (sslCert && sslKey) {
+    protocol = 'https';
+  }
+}
+
+const fs = require('fs');
 const express = require('express');
 const app = express();
-const server = require('http').Server(app);
+
+let server;
+if (protocol === 'https') {
+  const serverSettings = {
+    key: fs.readFileSync(sslKey),
+    cert: fs.feadFileSync(sslCert)
+  };
+  server = require('https').createServer(serverSettings, app);
+} else {
+  server = require('http').Server();
+}
+
 const io = require('socket.io')(server, {serveClient: false});
-const fs = require('fs');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const nodeCleanup = require('node-cleanup');
@@ -27,7 +55,6 @@ const saltRounds = 10;
 const jwtSigningSecret = 'RoyalGameOfUr';
 
 const Game = require('./js/Game');
-const CONFIG = require('./js/config');
 
 // Serve the static content directly.
 app.use(express.static(__dirname));
@@ -408,6 +435,8 @@ io.on('connection', function (socket) {
       return;
     }
 
+    const deltaDetails = {};
+
     // Convert the track request back to an integer.
     details.track = parseInt(details.track);
 
@@ -420,11 +449,17 @@ io.on('connection', function (socket) {
       // Because the client should never present moves that aren't possible, if the
       // player has triggered this state then they're likely messing around in the
       // inspector. Force their client to update to a known good state.
-      socket.emit('game-activity', gameState);
+      socket.emit('game-activity', {game: gameState, delta: {}});
 
       // Nothing to do for now.
       return;
     }
+
+    deltaDetails.move = {
+      pid: currentPlayer.pid,
+      t: details.track,
+      m: gameState.currentRoll
+    };
 
     // Record the move.
     gameState.lastMoves[currentPlayer.pid].push(`${details.track}:${gameState.currentRoll}`);
@@ -502,9 +537,14 @@ io.on('connection', function (socket) {
       }, 5000);
     }
 
+    const gameUpdate = {
+      game: gameState,
+      delta: deltaDetails
+    };
+
     // Send a game update.
-    player(gameState.player1.pid).emit('game-activity', gameState);
-    player(gameState.player2.pid).emit('game-activity', gameState);
+    player(gameState.player1.pid).emit('game-activity', gameUpdate);
+    player(gameState.player2.pid).emit('game-activity', gameUpdate);
   });
 });
 
@@ -877,8 +917,13 @@ function gameRoll (socket, gameId) {
     game.nextTurn();
   }
 
-  player(game.player1.pid).emit('game-activity', game);
-  player(game.player2.pid).emit('game-activity', game);
+  const gameUpdate = {
+    game: game,
+    delta: {}
+  };
+
+  player(game.player1.pid).emit('game-activity', gameUpdate);
+  player(game.player2.pid).emit('game-activity', gameUpdate);
 }
 
 function handleChat(socket, gameId, message) {

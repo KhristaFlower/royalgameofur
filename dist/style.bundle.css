@@ -746,9 +746,6 @@ svg.cell.valid:hover + svg.arrow {
 .ani-token.enemy {
   fill: #ff8080; }
 
-.animate-t0-m4-p {
-  animation: move 1s linear infinite; }
-
 @keyframes move {
   0% {
     motion-offset: 0%;

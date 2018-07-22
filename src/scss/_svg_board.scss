@@ -90,8 +90,6 @@ svg.cell {
 
 
 .ani-token {
-  //animation: move 1s linear infinite;
-
   &.player {
     fill: #8080ff;
   }
@@ -100,24 +98,8 @@ svg.cell {
   }
 }
 
-$msPerMovement: 250ms;
-
-@for $t from 0 to 14 {
-  @for $m from 1 to 4 {
-    .animate-t#{$t}-m#{$m}-p {
-
-    }
-  }
-}
-
-.animate-t0-m4-p {
-  //$path: 'M 450 250 L 70 250 Q 50 250 50 230 L 50 170 Q 50 150 70 150 L 730 150 Q 750 150 750 170 L 750 230 Q 750 250 730 250 L 550 250';
-  //motion-path: path($path);
-  //offset-path: path($path);
-  animation: move 1s linear infinite;
-}
-
 @keyframes move {
+
   $start: 0%;
   $end: 100%;
   0% {
